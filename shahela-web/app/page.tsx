@@ -56,7 +56,7 @@ function MainCard({ id, img, title, desc, reverse = false }: { id: number; img: 
         <span className="text-rose-600 font-black text-xs tracking-[0.5em] mb-4 block font-['Hind_Siliguri']">অধ্যায় ০{id}</span>
         <h3 className="text-4xl font-black mb-6 tracking-tighter italic text-white/90 font-['Tiropi']">{title}</h3>
         <p className="text-lg italic text-white/40 leading-relaxed font-light mb-8 font-['Noto_Serif_Bengali']">"{desc}"</p>
-        <button className="text-[9px] font-black uppercase tracking-[0.4em] text-rose-500 border-b border-rose-500/30 pb-2 hover:text-white hover:border-white transition-all font-['Hind_Siliguri']">আর্কাইভ দেখুন</button>
+        <button className="text-[9px] font-black uppercase tracking-[0.4em] text-rose-500 border-b border-rose-500/30 pb-2 hover:text-white hover:border-white transition-all font-['Hind_Siliguri']">আর্কইভ দেখুন</button>
       </div>
     </motion.div>
   );
