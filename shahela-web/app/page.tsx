@@ -7,8 +7,8 @@ export default function BentoHomePage() {
   const [greeting, setGreeting] = useState('...');
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Magnetic Hover Effect
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  // Generic Mouse Event Handler to support both Div and Anchor tags
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     const item = e.currentTarget;
     const rect = item.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -41,7 +41,7 @@ export default function BentoHomePage() {
       
       {/* SVG Noise Overlay */}
       <div 
-        className="fixed inset-0 opacity-[0.03] pointer-events:none z-50"
+        className="fixed inset-0 opacity-[0.03] pointer-events-none z-50"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
         }}
@@ -63,7 +63,7 @@ export default function BentoHomePage() {
         {/* Box 1: Large Intro */}
         <div 
           onMouseMove={handleMouseMove}
-          className="bento-item col-span-2 row-span-2 p-10 flex flex-col justify-end group border border-white/5 bg-white/[0.01] rounded-[2rem] relative overflow-hidden transition-all duration-500 hover:border-orange-500/30 hover:-translate-y-1"
+          className="bento-item col-span-2 row-span-2 p-10 flex flex-col justify-end border border-white/5 bg-white/[0.01] rounded-[2rem] relative overflow-hidden transition-all duration-500 hover:border-orange-500/30 hover:-translate-y-1"
         >
           <div className="w-12 h-12 rounded-full bg-orange-600 flex items-center justify-center text-xl mb-6 shadow-lg shadow-orange-600/20">
             🍅
