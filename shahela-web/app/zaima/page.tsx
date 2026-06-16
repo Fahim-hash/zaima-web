@@ -1,13 +1,9 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { useRef } from "react";
+import { motion } from "framer-motion";
 
-export default function ZaimaLuxuryEdition() {
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll();
-  const scaleProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-
+export default function ZaimaCleanArchive() {
+  // 📷 5 images from public/images/
   const images = [
     "/images/zaima-1.jpg", 
     "/images/zaima-2.jpg", 
@@ -17,136 +13,108 @@ export default function ZaimaLuxuryEdition() {
   ];
 
   return (
-    <div ref={containerRef} className="min-h-screen w-full bg-[#0a0a0a] text-[#FAF9F6] font-sans antialiased selection:bg-pink-500 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen w-full bg-[#FAF9F6] text-[#1A1A1A] font-sans antialiased selection:bg-pink-100 selection:text-pink-900 relative">
       
-      {/* ── LUXURY DYNAMIC BACKGROUND ── */}
+      {/* ── LIGHTWEIGHT BACKGROUND ── */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        {/* Animated Gradient Orbs */}
-        <motion.div 
-          animate={{ x: [0, 100, 0], y: [0, 50, 0] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-10%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-gradient-to-br from-pink-900/20 via-purple-900/10 to-transparent blur-[120px] opacity-60"
-        />
-        <motion.div 
-          animate={{ x: [0, -80, 0], y: [0, 100, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr from-rose-900/20 via-amber-900/5 to-transparent blur-[140px] opacity-40"
-        />
-        
-        {/* Subtle Noise Texture */}
-        <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+        {/* Very soft, static ambient glows (no heavy math) */}
+        <div className="absolute -top-20 -left-20 w-[500px] h-[500px] rounded-full bg-pink-100/40 blur-[100px]" />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full bg-amber-50/50 blur-[100px]" />
+        {/* Simple thin grid */}
+        <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] [background-size:80px_80px]"></div>
       </div>
 
-      {/* ── FLOATING NAVIGATION ── */}
-      <nav className="fixed top-0 w-full z-50 mix-blend-difference px-8 py-10 flex justify-between items-center">
-        <motion.span 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-sm font-black uppercase tracking-[0.5em]"
-        >
-          Zaima Apu
-        </motion.span>
-        <div className="flex gap-10 text-[10px] font-bold uppercase tracking-widest opacity-60">
-          <span>Portfolio '26</span>
-          <span className="hidden md:block">Scroll to explore</span>
-        </div>
-      </nav>
-
-      {/* ── HERO SECTION ── */}
-      <section className="relative z-10 min-h-screen flex flex-col items-center justify-center pt-20 px-6">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-16"
-        >
-          <span className="inline-block text-xs font-bold tracking-[0.4em] text-pink-500 uppercase mb-6">
-            Creative Direction // Zaima Akter
+      {/* ── CONTENT ── */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        
+        {/* Header */}
+        <nav className="w-full max-w-7xl mx-auto px-6 py-8 flex justify-between items-center border-b border-black/[0.04]">
+          <span className="text-xs font-bold uppercase tracking-[0.4em] text-pink-700">
+            Zaima Apu
           </span>
-          <h1 className="text-6xl md:text-[10rem] font-light tracking-tighter leading-[0.85] italic font-serif">
-            The <span className="font-sans font-black not-italic tracking-[-0.05em] text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20">Aesthetic</span>
-          </h1>
-        </motion.div>
+          <span className="text-[10px] font-mono tracking-widest opacity-40 uppercase">
+            2026 // Personal Archive
+          </span>
+        </nav>
 
-        {/* Main Floating Hero Image */}
-        <motion.div 
-          style={{ scale: scaleProgress }}
-          className="relative w-full max-w-4xl aspect-video rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.5)] border border-white/10 group"
-        >
-          <img 
-            src={images[0]} 
-            className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" 
-            alt="Zaima Feature" 
-          />
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-700" />
-          <div className="absolute bottom-10 left-10 text-left">
-            <p className="text-xs font-mono uppercase tracking-widest opacity-60 mb-2">Primary Subject</p>
-            <h3 className="text-2xl font-bold">Main Archive 01</h3>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ── MASONRY GALLERY SECTION ── */}
-      <section className="relative z-10 py-40 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
+        {/* Hero Section */}
+        <main className="max-w-7xl w-full mx-auto px-6 py-16 md:py-24 flex flex-col lg:flex-row items-center gap-20">
           
-          {/* Card 02 */}
-          <motion.div 
-            whileInView={{ y: [100, 0], opacity: [0, 1] }}
-            className="md:col-span-7 aspect-square md:aspect-[4/5] rounded-[2.5rem] overflow-hidden border border-white/5 bg-white/5 backdrop-blur-xl group"
-          >
-            <img src={images[1]} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" alt="" />
-          </motion.div>
+          <div className="w-full lg:w-1/2">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <span className="text-[10px] font-bold tracking-[0.3em] text-pink-500 uppercase mb-4 block">
+                Visual Curation
+              </span>
+              <h1 className="text-5xl md:text-7xl font-light tracking-tighter leading-[1.05] text-[#111] mb-8">
+                The essence of <br />
+                <span className="font-serif italic text-pink-800/80">aesthetic</span> style.
+              </h1>
+              <p className="text-sm text-stone-500 max-w-sm leading-relaxed mb-10">
+                A curated digital space focusing on clean compositions and personal visual storytelling for Zaima Akter.
+              </p>
+            </motion.div>
 
-          {/* Card 03 */}
-          <motion.div 
-            whileInView={{ y: [150, 0], opacity: [0, 1] }}
-            className="md:col-span-5 aspect-[3/4] rounded-[2.5rem] overflow-hidden border border-white/5 bg-white/5 mt-0 md:mt-40 group"
-          >
-            <img src={images[2]} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="" />
-          </motion.div>
-
-          {/* Card 04 (Full Width Luxury Break) */}
-          <motion.div 
-            whileInView={{ scale: [0.95, 1], opacity: [0, 1] }}
-            className="md:col-span-12 aspect-[21/9] rounded-[3rem] overflow-hidden border border-white/5 group my-10"
-          >
-            <img src={images[3]} className="w-full h-full object-cover" alt="" />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-              <h2 className="text-4xl md:text-6xl font-serif italic tracking-widest">Elegance Defined</h2>
+            <div className="grid grid-cols-2 gap-10 pt-8 border-t border-black/[0.06] max-w-xs">
+              <div>
+                <span className="block text-[9px] uppercase tracking-widest text-stone-400 mb-1 font-mono">Subject</span>
+                <span className="text-xs font-bold uppercase opacity-80">Zaima Akter</span>
+              </div>
+              <div>
+                <span className="block text-[9px] uppercase tracking-widest text-stone-400 mb-1 font-mono">Location</span>
+                <span className="text-xs font-bold uppercase opacity-80">Dhaka, BD</span>
+              </div>
             </div>
-          </motion.div>
-
-          {/* Card 05 */}
-          <motion.div 
-            whileInView={{ x: [-50, 0], opacity: [0, 1] }}
-            className="md:col-span-5 aspect-square rounded-[2.5rem] overflow-hidden border border-white/5"
-          >
-            <img src={images[4]} className="w-full h-full object-cover" alt="" />
-          </motion.div>
-
-          {/* Luxury Text Block */}
-          <div className="md:col-span-7 flex items-center justify-center p-12">
-            <p className="text-2xl md:text-4xl font-light leading-relaxed text-stone-400">
-              "<span className="text-white">Style is a way to say who you are without having to speak.</span>" 
-              A curated journey through the lens of Zaima Akter.
-            </p>
           </div>
-        </div>
-      </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="relative z-10 py-20 px-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
-        <div className="flex flex-col items-center md:items-start">
-          <span className="text-xs font-black uppercase tracking-[0.4em] mb-2">Zaima Apu</span>
-          <span className="text-[10px] font-mono opacity-40 uppercase">Aesthetic Personal Space // 2026</span>
-        </div>
-        <div className="h-px flex-1 bg-white/5 mx-10 hidden md:block" />
-        <div className="flex gap-6">
-          <button className="px-6 py-3 rounded-full border border-white/20 text-[10px] font-bold uppercase hover:bg-white hover:text-black transition-all">Back to top</button>
-        </div>
-      </footer>
+          {/* Main Hero Image (Image 1) */}
+          <div className="w-full lg:w-1/2 flex justify-center">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1 }}
+              className="w-full max-w-md aspect-[3/4] bg-stone-100 rounded-[2.5rem] overflow-hidden shadow-xl border border-white relative group"
+            >
+              <img src={images[0]} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Zaima" />
+            </motion.div>
+          </div>
+        </main>
 
+        {/* Gallery Section (Images 2-5) */}
+        <section className="bg-white/40 border-t border-black/[0.02] py-20">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+              {/* Image 2 */}
+              <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-md border border-white">
+                <img src={images[1]} className="w-full h-full object-cover" alt="" />
+              </div>
+              {/* Image 3 */}
+              <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-md border border-white">
+                <img src={images[2]} className="w-full h-full object-cover" alt="" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+              {/* Image 4 */}
+              <div className="md:col-span-2 aspect-[16/9] rounded-3xl overflow-hidden shadow-md border border-white">
+                <img src={images[3]} className="w-full h-full object-cover" alt="" />
+              </div>
+              {/* Image 5 */}
+              <div className="aspect-[3/4] md:aspect-auto rounded-3xl overflow-hidden shadow-md border border-white">
+                <img src={images[4]} className="w-full h-full object-cover" alt="" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer className="w-full max-w-7xl mx-auto px-6 py-12 flex justify-between items-center text-[9px] font-mono tracking-widest opacity-40 uppercase">
+          <span>© 2026 All Rights Reserved</span>
+          <span>Personal Space</span>
+        </footer>
+      </div>
     </div>
   );
 }
