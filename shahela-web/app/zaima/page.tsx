@@ -12,7 +12,7 @@ export default function ZaimaSpace() {
     "/images/zaima-5.jpg", 
   ];
 
-  // Minimal and clean interactive elements
+  // Interactive states
   const [isPlaying, setIsPlaying] = useState(false);
   const [vibe, setVibe] = useState("Sunday morning");
   const [unlocked, setUnlocked] = useState(false);
@@ -20,10 +20,21 @@ export default function ZaimaSpace() {
   return (
     <div className="min-h-screen w-full bg-[#FAF9F6] text-[#1A1A1A] font-sans antialiased selection:bg-pink-100 selection:text-pink-900 relative overflow-x-hidden">
       
-      {/* ── BALANCED BACKGROUND TONES ── */}
+      {/* ── HIGH-END GEOMETRIC PATTERN GRID BACKGROUND ── */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-5%] w-[550px] h-[550px] rounded-full bg-pink-200/25 blur-[100px]" />
-        <div className="absolute bottom-[15%] right-[-5%] w-[450px] h-[450px] rounded-full bg-amber-100/30 blur-[100px]" />
+        {/* Crisp mathematical structural grid line intersections */}
+        <div 
+          className="absolute inset-0 opacity-[0.04]" 
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, #000000 1px, transparent 1px),
+              linear-gradient(to bottom, #000000 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px'
+          }}
+        />
+        {/* Subtle radial shading over the grid to soften up outer corners */}
+        <div className="absolute inset-0 bg-radial-[circle_at_center,transparent_40%,#FAF9F6_95%]" />
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen p-4 md:p-8">
@@ -38,7 +49,7 @@ export default function ZaimaSpace() {
           </span>
         </header>
 
-        {/* ── EDITORIAL TEXT INTRO (Before the main imagery hits) ── */}
+        {/* ── EDITORIAL TEXT INTRO ── */}
         <div className="w-full max-w-5xl mx-auto mt-14 mb-4">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
@@ -170,7 +181,7 @@ export default function ZaimaSpace() {
           </div>
         </main>
 
-        {/* ── SCRAPBOARD GRID SEPARATED BY THIN RULE ── */}
+        {/* ── SNAPSHOT GRID ── */}
         <section className="w-full max-w-5xl mx-auto mt-14 mb-10">
           <div className="w-full border-t border-black/[0.03] pt-7 mb-6 flex justify-between items-center px-1">
             <h3 className="text-[9px] font-mono tracking-widest text-stone-400 uppercase">The Snapshot Grid</h3>
@@ -204,7 +215,7 @@ export default function ZaimaSpace() {
         {/* ── FOOTER ── */}
         <footer className="w-full max-w-5xl mx-auto mt-auto pt-5 border-t border-black/[0.03] flex flex-col sm:flex-row justify-between items-center text-[8px] font-mono opacity-40 uppercase tracking-widest gap-3">
           <span>Only for Zaima Pookie🎀</span>
-          <span>Made with love 2026</span>
+          <span>Made with love</span>
         </footer>
 
       </div>
