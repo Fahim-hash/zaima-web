@@ -49,7 +49,7 @@ export default function ZaimaSpace() {
           </span>
         </header>
 
-        {/* ── EDITORIAL TEXT INTRO ── */}
+                {/* ── EDITORIAL TEXT INTRO ── */}
         <div className="w-full max-w-5xl mx-auto mt-14 mb-4">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
@@ -58,17 +58,18 @@ export default function ZaimaSpace() {
             className="max-w-xl"
           >
             <span className="text-[9px] font-bold tracking-[0.2em] text-pink-700 uppercase mb-3 block font-mono">
-              Welcome Note
+              Hey Pookie! 🧸
             </span>
             <h1 className="text-4xl md:text-5xl font-light tracking-tighter leading-[1.1] text-stone-950 mb-5">
-              A little corner kept for <br />
-              <span className="font-serif italic text-pink-800/80">quiet days and polaroids</span>.
+              A cozy little corner kept <br />
+              <span className="font-serif italic text-pink-800/80">just for my favorite person</span>.
             </h1>
             <p className="text-xs md:text-sm text-stone-500 leading-relaxed">
-              Just a soft, private page to display favorite snaps, track daily notes, and loop good tunes. No fuzz, no cluttered layouts—just a simple aesthetic retreat to look back at moments exactly the way they were caught.
+              In the middle of absolute HSC chaos and hectic routines, consider this your ultimate comfort space. No stress, no clutter—just your favorite aesthetic polaroids, loops of good tunes, and a tiny retreat to breathe and reset. Whenever the days get a bit too heavy, just come hang out here. Your number one bestie always has your back! ✨
             </p>
           </motion.div>
         </div>
+
 
         {/* ── MAIN CONTENT BLOCK ── */}
         <main className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 items-start">
