@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function ZaimaSpace() {
   const images = [
@@ -15,6 +15,36 @@ export default function ZaimaSpace() {
   // Interactive states
   const [isPlaying, setIsPlaying] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
+
+  // ── PERFECT PLAY/PAUSE AUDIO TRACKER ──
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const songUrl = "/audio/your-song.mp3"; // তোমার গানের পাথ বা ক্লাউড লিঙ্ক
+
+  useEffect(() => {
+    // শুধুমাত্র একবার ব্রাউজারে অডিও অবজেক্ট ক্রিয়েট হবে
+    audioRef.current = new Audio(songUrl);
+    audioRef.current.loop = true;
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
+
+  // অন-অফ করার পারফেক্ট লজিক
+  const toggleAudio = () => {
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch((err) => console.log("Playback blocked:", err));
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-[#FAF9F6] text-[#1A1A1A] font-sans antialiased selection:bg-pink-100 selection:text-pink-900 relative overflow-x-hidden">
@@ -120,7 +150,7 @@ export default function ZaimaSpace() {
               </div>
 
               <button 
-                onClick={() => setIsPlaying(!isPlaying)}
+                onClick={toggleAudio}
                 className={`w-full py-2.5 rounded-xl font-mono text-[9px] tracking-widest uppercase font-bold transition-all duration-300 active:scale-[0.98] cursor-pointer ${isPlaying ? 'bg-pink-100 text-pink-800 border border-pink-200 shadow-inner' : 'bg-stone-900 text-white hover:bg-stone-800 shadow-xs'}`}
               >
                 {isPlaying ? "Pause Cassette" : "Play Cassette"}
