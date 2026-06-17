@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 
-export default function ZaimaFullFeaturedArchive() {
+export default function ZaimaPersonalSpace() {
   const images = [
     "/images/zaima-1.jpg", 
     "/images/zaima-2.jpg", 
@@ -12,183 +12,180 @@ export default function ZaimaFullFeaturedArchive() {
     "/images/zaima-5.jpg", 
   ];
 
-  // Accordion state
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  // Music Player States
+  const [isPlaying, setIsPlaying] = useState(false);
   
-  // Contact Form state
-  const [msg, setMsg] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  // Mood Selector State
+  const [currentMood, setCurrentMood] = useState("✨");
 
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
+  // Magic Note State
+  const [showNote, setShowNote] = useState(false);
 
   return (
-    <div className="min-h-screen w-full bg-[#FAF9F6] text-[#1A1A1A] font-sans antialiased selection:bg-pink-100 selection:text-pink-900 relative">
+    <div className="min-h-screen w-full bg-[#FAF9F6] text-[#1A1A1A] font-sans antialiased selection:bg-pink-200 relative overflow-x-hidden">
       
-      {/* ── BACKGROUND GLOWS ── */}
+      {/* ── SOFT AMBIENT GLOWS ── */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-pink-200/40 blur-[120px]" />
-        <div className="absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-amber-100/30 blur-[120px]" />
-        <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] [background-size:60px_60px]"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-pink-200/40 blur-[100px]" />
+        <div className="absolute bottom-[20%] right-[-10%] w-[450px] h-[450px] rounded-full bg-amber-100/50 blur-[100px]" />
       </div>
 
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col min-h-screen p-4 md:p-8">
         
-        {/* ── STICKY GLASS NAVBAR ── */}
-        <div className="sticky top-0 w-full z-50 px-4 pt-4">
-          <nav className="w-full max-w-7xl mx-auto px-6 py-5 flex justify-between items-center bg-white/50 backdrop-blur-md border border-white/70 rounded-2xl shadow-sm">
-            <span className="text-xs font-bold uppercase tracking-[0.4em] text-pink-800">
-              Zaima Apu
-            </span>
-            <div className="flex gap-6 text-[10px] font-mono tracking-widest uppercase opacity-60">
-              <a href="#gallery" className="hover:text-pink-700 transition-colors">Gallery</a>
-              <a href="#about" className="hover:text-pink-700 transition-colors">About</a>
-              <a href="#contact" className="hover:text-pink-700 transition-colors">Contact</a>
-            </div>
-          </nav>
-        </div>
+        {/* ── TOP HEADER ── */}
+        <header className="w-full max-w-5xl mx-auto flex justify-between items-center py-4 px-6 bg-white/40 backdrop-blur-md border border-white/80 rounded-2xl shadow-xs">
+          <span className="text-sm font-black tracking-[0.3em] text-pink-700 font-serif italic">zaima's world.</span>
+          <span className="text-[10px] font-mono opacity-50 tracking-widest">HSC '26 // MEMBER ONLY</span>
+        </header>
 
-        {/* ── HERO SECTION ── */}
-        <main className="max-w-7xl w-full mx-auto px-6 py-16 md:py-24 flex flex-col lg:flex-row items-center gap-16">
-          <div className="w-full lg:w-1/2">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-              <span className="text-[10px] font-bold tracking-[0.3em] text-pink-600 uppercase mb-4 block">
-                Visual Identity Portfolio
-              </span>
-              <h1 className="text-5xl md:text-7xl font-light tracking-tighter leading-[1.05] text-[#111] mb-6">
-                The essence of <br />
-                <span className="font-serif italic text-pink-800">aesthetic</span> style.
-              </h1>
-              <p className="text-sm text-stone-500 max-w-sm leading-relaxed mb-8">
-                A structured digital space focusing on clean layout design, premium compositions, and storytelling.
-              </p>
-            </motion.div>
-          </div>
-
-          <div className="w-full lg:w-1/2 flex justify-center">
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }} className="w-full max-w-md aspect-[3/4] p-3 bg-white/40 backdrop-blur-md rounded-[2.5rem] border border-white/80 shadow-sm">
-              <div className="w-full h-full rounded-[1.8rem] overflow-hidden">
-                <img src={images[0]} className="w-full h-full object-cover" alt="Main Capture" />
+        {/* ── MAIN CONTENT GRID ── */}
+        <main className="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 mt-8">
+          
+          {/* LEFT COLUMN: HERO POLAROID (7 Cols) */}
+          <div className="md:col-span-7 flex flex-col gap-6">
+            
+            {/* Big Polaroid Frame */}
+            <motion.div 
+              initial={{ opacity: 0, rotate: -2 }}
+              animate={{ opacity: 1, rotate: -1 }}
+              className="bg-white p-4 pb-12 rounded-xl shadow-md border border-black/[0.03] rotate-[-1deg] hover:rotate-0 transition-transform duration-500"
+            >
+              <div className="w-full aspect-[4/5] rounded-lg overflow-hidden bg-stone-100 mb-4">
+                <img src={images[0]} className="w-full h-full object-cover" alt="Zaima Pookie" />
+              </div>
+              <div className="text-center">
+                <p className="font-serif italic text-lg text-stone-700">The favorite frame ✨</p>
+                <p className="text-[10px] font-mono text-stone-400 mt-1">Captured // Dhaka, BD</p>
               </div>
             </motion.div>
+
+            {/* Interactive Mood Block */}
+            <div className="bg-white/40 backdrop-blur-md border border-white/80 p-6 rounded-2xl shadow-xs">
+              <span className="block text-[10px] font-mono tracking-widest text-stone-400 uppercase mb-3">Zaima's Mood Today:</span>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex gap-2">
+                  {[
+                    { emoji: "✨", label: "Glow" },
+                    { emoji: "☁️", label: "Chill" },
+                    { emoji: "🧋", label: "Boba Craving" },
+                    { emoji: "📚", label: "HSC Stress" }
+                  ].map((m) => (
+                    <button 
+                      key={m.label}
+                      onClick={() => setCurrentMood(m.emoji)}
+                      className={`text-xl p-2.5 rounded-xl transition-all ${currentMood === m.emoji ? 'bg-white shadow-xs border border-pink-200 scale-110' : 'hover:bg-white/50'}`}
+                      title={m.label}
+                    >
+                      {m.emoji}
+                    </button>
+                  ))}
+                </div>
+                <div className="text-right">
+                  <span className="text-[9px] font-mono block text-stone-400 uppercase">Current Vibe</span>
+                  <span className="text-sm font-bold text-pink-900">{currentMood} Feeling Good</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: STUFFS & INTERACTIVES (5 Cols) */}
+          <div className="md:col-span-5 flex flex-col gap-6">
+            
+            {/* STUFF 1: AESTHETIC MUSIC PLAYER */}
+            <div className="bg-white/50 backdrop-blur-md border border-white/80 p-6 rounded-2xl shadow-xs flex flex-col justify-between aspect-square md:aspect-auto">
+              <div>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <span className="text-[9px] font-mono text-pink-600 tracking-widest uppercase block mb-1">Now Playing Loop</span>
+                    <h4 className="text-base font-bold tracking-tight text-stone-800">প্রিয় গান (Lofi Version)</h4>
+                    <p className="text-xs text-stone-400">Aesthetic Soundscapes</p>
+                  </div>
+                  <div className={`w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-xs ${isPlaying ? 'animate-spin [animation-duration:5s]' : ''}`}>
+                    🎵
+                  </div>
+                </div>
+                {/* Visualizer bars */}
+                <div className="flex items-end gap-1 h-6 my-4 px-1">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((bar) => (
+                    <motion.div 
+                      key={bar}
+                      animate={isPlaying ? { height: [8, 24, 12, 20, 8] } : { height: 8 }}
+                      transition={{ duration: 1, repeat: Infinity, delay: bar * 0.1 }}
+                      className="flex-1 bg-pink-300 rounded-xs"
+                    />
+                  ))}
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsPlaying(!isPlaying)}
+                className={`w-full py-3 rounded-xl font-mono text-[10px] tracking-widest uppercase font-bold transition-all ${isPlaying ? 'bg-pink-200 text-pink-800 border border-pink-300' : 'bg-stone-900 text-white hover:bg-pink-800'}`}
+              >
+                {isPlaying ? "PAUSE CASSETTE" : "PLAY CASSETTE"}
+              </button>
+            </div>
+
+            {/* STUFF 2: SECRET MAGIC NOTE CARD */}
+            <div className="bg-gradient-to-br from-pink-50 to-amber-50 border border-white/80 p-6 rounded-2xl shadow-xs relative overflow-hidden">
+              <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-pink-200/30 rounded-full blur-xl" />
+              
+              <span className="text-[9px] font-mono text-stone-400 uppercase block mb-1">Interactive Drop</span>
+              <h4 className="text-base font-bold text-stone-800 mb-3">A Message From The System 💌</h4>
+              
+              {showNote ? (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-stone-600 leading-relaxed font-serif italic bg-white/70 p-4 rounded-xl border border-pink-100">
+                  "আশা করি আজকের দিনটা তোমার অনেক সুন্দর কাটবে! পড়াশোনার চাপের মাঝেও নিজের এই ছোট্ট কিউট স্পেসটাতে এসে একটু রিল্যাক্স করে যেও। Stay awesome, Zaima Pookie! ✨"
+                </motion.div>
+              ) : (
+                <p className="text-xs text-stone-500 mb-4 leading-relaxed">There is a hidden surprise note locked behind this interface block.</p>
+              )}
+              
+              <button 
+                onClick={() => setShowNote(!showNote)}
+                className="mt-2 text-xs font-bold text-pink-700 hover:text-pink-900 underline underline-offset-4 font-mono transition-colors"
+              >
+                {showNote ? "Close Secret Note" : "Click to Reveal Note →"}
+              </button>
+            </div>
+
+            {/* STUFF 3: MINI POLAROID MEMORY */}
+            <motion.div 
+              whileHover={{ rotate: 2 }}
+              className="bg-white p-3 pb-8 rounded-xl shadow-xs border border-black/[0.02] rotate-[2deg] transition-transform"
+            >
+              <div className="w-full aspect-video rounded-lg overflow-hidden bg-stone-100 mb-2">
+                <img src={images[2]} className="w-full h-full object-cover" alt="Memory" />
+              </div>
+              <p className="text-[11px] font-serif italic text-center text-stone-500">Good Times Grid // 02</p>
+            </motion.div>
+
           </div>
         </main>
 
-        {/* ── NEW STUFF 1: STATS / METRICS BAR ── */}
-        <section className="max-w-7xl w-full mx-auto px-6 mb-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl shadow-xs text-center">
-            <div>
-              <span className="block text-2xl font-light font-serif text-pink-900">05</span>
-              <span className="text-[9px] font-mono uppercase tracking-wider text-stone-400">Curated Frames</span>
+        {/* ── BOTTOM SCRAPBOARD SECTION ── */}
+        <section className="w-full max-w-5xl mx-auto mt-12 mb-16">
+          <h3 className="text-[10px] font-mono tracking-widest text-stone-400 uppercase mb-6 px-2">The Memory Scrapboard Grid</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="bg-white p-3 pb-8 rounded-xl shadow-xs border border-black/[0.02] rotate-[-1deg]">
+              <div className="w-full aspect-square rounded-lg overflow-hidden mb-2"><img src={images[1]} className="w-full h-full object-cover" alt="" /></div>
+              <p className="text-[10px] font-mono text-center text-stone-400">#FRAME_02</p>
             </div>
-            <div>
-              <span className="block text-2xl font-light font-serif text-pink-900">HSC '26</span>
-              <span className="text-[9px] font-mono uppercase tracking-wider text-stone-400">Timeline Milestone</span>
+            <div className="bg-white p-3 pb-8 rounded-xl shadow-xs border border-black/[0.02] rotate-[1deg]">
+              <div className="w-full aspect-square rounded-lg overflow-hidden mb-2"><img src={images[3]} className="w-full h-full object-cover" alt="" /></div>
+              <p className="text-[10px] font-mono text-center text-stone-400">#SNAPSHOT_04</p>
             </div>
-            <div>
-              <span className="block text-2xl font-light font-serif text-pink-900">Dhaka</span>
-              <span className="text-[9px] font-mono uppercase tracking-wider text-stone-400">Operational Base</span>
+            <div className="bg-white p-3 pb-8 rounded-xl shadow-xs border border-black/[0.02] rotate-[-2deg] col-span-2 md:col-span-1">
+              <div className="w-full aspect-square md:aspect-square rounded-lg overflow-hidden mb-2"><img src={images[4]} className="w-full h-full object-cover" alt="" /></div>
+              <p className="text-[10px] font-mono text-center text-stone-400">#COLLECTION_05</p>
             </div>
-            <div>
-              <span className="block text-2xl font-light font-serif text-pink-900">100%</span>
-              <span className="text-[9px] font-mono uppercase tracking-wider text-stone-400">Aesthetic Precision</span>
-            </div>
-          </div>
-        </section>
-
-        {/* ── MAIN GALLERY GRID ── */}
-        <section id="gallery" className="py-12 bg-stone-100/40 border-y border-black/[0.02]">
-          <div className="max-w-7xl mx-auto px-6">
-            <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-stone-400 mb-10 font-mono">Visual Indexes</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
-              <div className="p-3 bg-white/50 backdrop-blur-md rounded-[2rem] border border-white/80 aspect-[4/3]">
-                <div className="w-full h-full rounded-2xl overflow-hidden"><img src={images[1]} className="w-full h-full object-cover" alt="" /></div>
-              </div>
-              <div className="p-3 bg-white/50 backdrop-blur-md rounded-[2rem] border border-white/80 aspect-[4/3]">
-                <div className="w-full h-full rounded-2xl overflow-hidden"><img src={images[2]} className="w-full h-full object-cover" alt="" /></div>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              <div className="md:col-span-2 p-3 bg-white/50 backdrop-blur-md rounded-[2rem] border border-white/80 aspect-[16/9]">
-                <div className="w-full h-full rounded-2xl overflow-hidden"><img src={images[3]} className="w-full h-full object-cover" alt="" /></div>
-              </div>
-              <div className="p-3 bg-white/50 backdrop-blur-md rounded-[2rem] border border-white/80 aspect-[3/4] md:aspect-auto">
-                <div className="w-full h-full rounded-2xl overflow-hidden"><img src={images[4]} className="w-full h-full object-cover" alt="" /></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── NEW STUFF 2: INTERACTIVE ABOUT & FAQ ACCORDION ── */}
-        <section id="about" className="max-w-3xl w-full mx-auto px-6 py-20">
-          <div className="text-center mb-12">
-            <span className="text-[9px] font-mono uppercase tracking-widest text-stone-400">Information Center</span>
-            <h2 className="text-3xl font-light tracking-tight mt-2">Frequently Explored Insights</h2>
-          </div>
-
-          <div className="space-y-4">
-            {[
-              { q: "What is the primary theme of this space?", a: "This archive serves as a clean, structured visual layout dedicated to minimal compositions, editorial framing, and personal updates." },
-              { q: "Which stack drives this interface?", a: "The site runs on Next.js 14, Tailwind CSS, and Framer Motion, fully optimized to maintain 60FPS backdrop blurs on clean ivory viewports." },
-              { q: "Can these layouts be exported?", a: "Yes, the components are structural templates designed for rapid integration into clean creative design workflows." }
-            ].map((faq, index) => (
-              <div key={index} className="border border-black/[0.05] bg-white/30 backdrop-blur-sm rounded-xl overflow-hidden transition-all">
-                <button onClick={() => toggleFaq(index)} className="w-full text-left px-6 py-4 flex justify-between items-center font-medium text-sm hover:bg-white/40 transition-colors">
-                  <span>{faq.q}</span>
-                  <span className="text-xs text-stone-400">{openFaq === index ? "−" : "+"}</span>
-                </button>
-                {openFaq === index && (
-                  <div className="px-6 pb-5 pt-1 text-xs text-stone-500 leading-relaxed border-t border-black/[0.02]">
-                    {faq.a}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── NEW STUFF 3: INTERACTIVE CONTACT PANEL ── */}
-        <section id="contact" className="max-w-xl w-full mx-auto px-6 pb-24">
-          <div className="p-8 bg-white/40 backdrop-blur-md border border-white/80 rounded-3xl shadow-xs text-center">
-            <span className="text-[9px] font-mono uppercase tracking-widest text-pink-700 block mb-2">Transmission</span>
-            <h3 className="text-xl font-medium tracking-tight mb-6">Drop a Note to Zaima Apu</h3>
-            
-            {submitted ? (
-              <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-xs text-emerald-700 bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl font-medium">
-                Message successfully routed into the cloud archive!
-              </motion.div>
-            ) : (
-              <div className="space-y-4">
-                <textarea 
-                  value={msg}
-                  onChange={(e) => setMsg(e.target.value)}
-                  placeholder="Write your thoughts or feedback here..." 
-                  rows={3}
-                  className="w-full p-4 bg-white/50 border border-black/[0.06] rounded-xl text-xs placeholder-stone-400 focus:outline-none focus:border-pink-300 resize-none transition-colors"
-                />
-                <button 
-                  onClick={() => { if(msg.trim()) setSubmitted(true); }}
-                  className="w-full py-3 bg-stone-900 hover:bg-pink-800 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl transition-colors shadow-xs"
-                >
-                  Send Message
-                </button>
-              </div>
-            )}
           </div>
         </section>
 
         {/* ── FOOTER ── */}
-        <div className="w-full px-4 pb-4 mt-auto">
-          <footer className="w-full max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row justify-between items-center text-[9px] font-mono tracking-widest opacity-50 uppercase bg-white/30 backdrop-blur-sm border border-white/40 rounded-xl gap-4">
-            <span>© 2026 Space Archive // Core Release</span>
-            <div className="flex gap-4">
-              <a href="#gallery" className="hover:underline">Top</a>
-              <span>•</span>
-              <span>All Systems Nominal</span>
-            </div>
-          </footer>
-        </div>
+        <footer className="w-full max-w-5xl mx-auto mt-auto pt-6 border-t border-black/[0.04] flex justify-between items-center text-[9px] font-mono opacity-40 uppercase tracking-widest">
+          <span>Made for Zaima Pookie</span>
+          <span>© 2026 </span>
+        </footer>
 
       </div>
     </div>
