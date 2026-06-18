@@ -7,7 +7,7 @@ export default function ZaimaSpace() {
   const images = [
     "/images/zaima-1.jpg", 
     "/images/494686438_959940016217240_6648276104973416309_n.jpg", 
-    "/images/zaima-3.jpg", 
+    "/images/717337095_1162860456014927_7806065373298586581_n.jpg", 
     "/images/zaima-4.jpg", 
     "/images/zaima-5.jpg", 
   ];
