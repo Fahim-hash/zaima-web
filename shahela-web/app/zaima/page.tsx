@@ -18,7 +18,7 @@ export default function ZaimaSpace() {
 
   // ── PERFECT PLAY/PAUSE AUDIO TRACKER ──
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const songUrl = "/audio/your-song.mp3"; // তোমার গানের পাথ বা ক্লাউড লিঙ্ক
+  const songUrl = "/Dhruv - double take (Official Video).mp3"; // তোমার গানের পাথ বা ক্লাউড লিঙ্ক
 
   useEffect(() => {
     // শুধুমাত্র একবার ব্রাউজারে অডিও অবজেক্ট ক্রিয়েট হবে
