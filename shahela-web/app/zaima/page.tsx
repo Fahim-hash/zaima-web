@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
 export default function ZaimaSpace() {
@@ -15,9 +15,15 @@ export default function ZaimaSpace() {
   // Interactive states
   const [isPlaying, setIsPlaying] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
-  const [carouselIndex, setCarouselIndex] = useState(0);
   const [waterCount, setWaterCount] = useState(0);
   const [currentQuote, setCurrentQuote] = useState(0);
+
+  // Checklist state
+  const [tasks, setTasks] = useState([
+    { id: 1, text: "Take a mental breather", completed: false },
+    { id: 2, text: "Hydrate properly today", completed: false },
+    { id: 3, text: "Listen to a favorite track", completed: false },
+  ]);
 
   const quotes = [
     "Take a deep breath. You are doing completely fine.",
@@ -54,8 +60,8 @@ export default function ZaimaSpace() {
     }
   };
 
-  const nextSlide = () => {
-    setCarouselIndex((prev) => (prev + 1) % images.length);
+  const toggleTask = (id: number) => {
+    setTasks(tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task));
   };
 
   return (
@@ -84,7 +90,7 @@ export default function ZaimaSpace() {
             Zaima <span className="text-pink-400/80 animate-pulse">🎀</span>
           </span>
           <span className="text-[9px] font-mono opacity-40 tracking-widest uppercase">
-            // 2026
+           
           </span>
         </header>
 
@@ -97,14 +103,14 @@ export default function ZaimaSpace() {
             className="max-w-2xl"
           >
             <span className="text-[9px] font-bold tracking-[0.25em] text-pink-700/80 uppercase mb-4 block font-mono">
-              Safe Haven 🤍
+              Hey Pookie 🎀
             </span>
             <h1 className="text-4xl md:text-5xl font-extralight tracking-tight leading-[1.15] text-stone-950 mb-6">
               A quiet, cozy corner kept <br />
               <span className="font-serif italic text-pink-900/80 font-normal">just for my favorite person.</span>
             </h1>
             <p className="text-xs md:text-sm text-stone-500/90 leading-relaxed font-light tracking-wide max-w-lg">
-              Whenever the endless study routines and long days feel a bit too heavy, consider this your little retreat to unwind. No rush, no noise—just some beautiful frames, your favorite melodies playing on a loop, and a calm space to breathe and reset. Take your time here. I always have your back. ✨
+              Whenever the endless study routines and long days feel a bit too heavy, consider this your little retreat to unwind. No rush, no noise just some beautiful frames, your favorite melodies playing on a loop, and a calm space to breathe and reset. Take your time here. I always have your back. ✨
             </p>
           </motion.div>
         </div>
@@ -126,7 +132,7 @@ export default function ZaimaSpace() {
               <div className="flex justify-between items-center px-2 pt-1">
                 <div>
                   <h3 className="text-xs font-semibold text-stone-800 tracking-tight">Absolutely Gorgeous ✨</h3>
-                  <p className="text-[9px] font-mono text-stone-400 mt-1">Candid Frame // Fav</p>
+                  <p className="text-[9px] font-mono text-stone-400 mt-1">Candid Frame</p>
                 </div>
                 <span className="text-[9px] font-mono px-3 py-1 bg-stone-50/80 border border-stone-100 rounded-full text-stone-500 tracking-wider">DHAKA, BD</span>
               </div>
@@ -173,7 +179,7 @@ export default function ZaimaSpace() {
             {/* STUFF 2: SECRET DROP NOTE */}
             <div className="bg-gradient-to-br from-pink-50/30 to-amber-50/20 backdrop-blur-md border border-white/80 p-6 rounded-2xl relative overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
               <span className="text-[8px] font-mono text-stone-400 uppercase tracking-widest block mb-1">Envelope</span>
-              <h4 className="text-xs font-semibold text-stone-800 mb-3">A little letter 💌</h4>
+              <h4 className="text-xs font-semibold text-stone-800 mb-3">A little letter for my Pookie 🎀</h4>
 
               {unlocked ? (
                 <motion.div 
@@ -196,25 +202,28 @@ export default function ZaimaSpace() {
               </button>
             </div>
 
-            {/* STUFF 3: MINI POLAROID CAROUSEL */}
-            <div className="bg-white/50 backdrop-blur-xl border border-white/90 p-5 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.01)] flex flex-col gap-3">
+            {/* STUFF 3: INTERACTIVE MINI JOURNAL (Replaced Image Slider) */}
+            <div className="bg-white/50 backdrop-blur-xl border border-white/90 p-5 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.01)] flex flex-col gap-3.5">
               <div className="flex justify-between items-center">
-                <span className="text-[8px] font-mono text-stone-400 uppercase tracking-widest">Memory Deck</span>
-                <span className="text-[8px] font-mono text-stone-500">{carouselIndex + 1} / {images.length}</span>
+                <span className="text-[8px] font-mono text-stone-400 uppercase tracking-widest">Self Alignment</span>
+                <span className="text-[8px] font-mono text-stone-400">DAILY PRIORITIES</span>
               </div>
               
-              <div className="w-full aspect-[4/3] rounded-xl bg-stone-100 overflow-hidden relative shadow-inner group">
-                <img 
-                  src={images[carouselIndex]} 
-                  className="w-full h-full object-cover transition-all duration-500" 
-                  alt="Carousel Capture" 
-                />
-                <button 
-                  onClick={nextSlide}
-                  className="absolute right-3 bottom-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-md shadow-xs flex items-center justify-center text-xs font-bold hover:bg-white active:scale-95 cursor-pointer transition-all"
-                >
-                  →
-                </button>
+              <div className="flex flex-col gap-2.5 my-1">
+                {tasks.map((task) => (
+                  <div 
+                    key={task.id} 
+                    onClick={() => toggleTask(task.id)}
+                    className="flex items-center gap-3 cursor-pointer select-none group"
+                  >
+                    <div className={`w-3.5 h-3.5 rounded-md border flex items-center justify-center text-[8px] transition-all duration-200 ${task.completed ? 'bg-pink-100 border-pink-300 text-pink-800' : 'border-stone-300 bg-stone-50/50 group-hover:border-stone-400'}`}>
+                      {task.completed && "✓"}
+                    </div>
+                    <span className={`text-xs transition-all duration-200 tracking-wide font-light ${task.completed ? 'line-through text-stone-400 font-normal' : 'text-stone-700'}`}>
+                      {task.text}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -244,7 +253,7 @@ export default function ZaimaSpace() {
             {/* STUFF 5: DAILY AFFIRMATION CANVAS */}
             <div className="bg-stone-900 text-stone-100 p-5 rounded-2xl shadow-sm relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/10 rounded-full blur-xl pointer-events-none" />
-              <span className="text-[8px] font-mono text-stone-500 uppercase tracking-widest block mb-2">Reminder // For You</span>
+              <span className="text-[8px] font-mono text-stone-500 uppercase tracking-widest block mb-2">Reminder For You</span>
               
               <div className="h-12 flex items-center">
                 <p className="text-xs font-light tracking-wide text-stone-300 leading-relaxed font-serif italic">
@@ -267,7 +276,7 @@ export default function ZaimaSpace() {
         <section className="w-full mt-20 mb-10">
           <div className="w-full border-t border-black/[0.03] pt-8 mb-6 flex justify-between items-center px-1">
             <h3 className="text-[9px] font-mono tracking-widest text-stone-400 uppercase">The Snapshot Grid</h3>
-            <span className="text-[8px] font-mono opacity-30">// SERIES 02-04</span>
+            <span className="text-[8px] font-mono opacity-30">SERIES 02-04</span>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -275,21 +284,21 @@ export default function ZaimaSpace() {
               <div className="w-full aspect-square rounded-xl overflow-hidden mb-3.5 bg-stone-50">
                 <img src={images[1]} className="w-full h-full object-cover" alt="Frame 02" />
               </div>
-              <p className="text-[8px] font-mono text-center tracking-wider text-stone-400 uppercase">Frame // 02</p>
+              <p className="text-[8px] font-mono text-center tracking-wider text-stone-400 uppercase">Frame 02</p>
             </div>
 
             <div className="bg-white p-3.5 pb-9 rounded-2xl border border-stone-100/70 shadow-[0_10px_30px_rgba(0,0,0,0.01)] transition-transform duration-300 hover:scale-[1.01]">
               <div className="w-full aspect-square rounded-xl overflow-hidden mb-3.5 bg-stone-50">
                 <img src={images[3]} className="w-full h-full object-cover" alt="Frame 03" />
               </div>
-              <p className="text-[8px] font-mono text-center tracking-wider text-stone-400 uppercase">Frame // 03</p>
+              <p className="text-[8px] font-mono text-center tracking-wider text-stone-400 uppercase">Frame 03</p>
             </div>
 
             <div className="bg-white p-3.5 pb-9 rounded-2xl border border-stone-100/70 shadow-[0_10px_30px_rgba(0,0,0,0.01)] transition-transform duration-300 hover:scale-[1.01] col-span-2 md:col-span-1">
               <div className="w-full aspect-square rounded-xl overflow-hidden mb-3.5 bg-stone-50">
                 <img src={images[4]} className="w-full h-full object-cover" alt="Frame 04" />
               </div>
-              <p className="text-[8px] font-mono text-center tracking-wider text-stone-400 uppercase">Frame // 04</p>
+              <p className="text-[8px] font-mono text-center tracking-wider text-stone-400 uppercase">Frame 04</p>
             </div>
           </div>
         </section>
