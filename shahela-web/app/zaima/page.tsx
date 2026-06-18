@@ -100,26 +100,26 @@ export default function ZaimaSpace() {
         {/* ── MAIN CONTENT BLOCK ── */}
         <main className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 items-start">
 
-          {/* LEFT COLUMN: HERO IMAGE CANVAS (7 Columns) */}
-          <div className="lg:col-span-7">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.99 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-white p-4 pb-12 rounded-[2rem] border border-stone-200/40 shadow-[0_20px_50px_rgba(244,143,177,0.12)]"
-            >
-              <div className="w-full aspect-[4/5] rounded-[1.4rem] overflow-hidden bg-stone-50 mb-5 relative group">
-                <img src={images[0]} className="w-full h-full object-cover" alt="Main Capture" />
-              </div>
-              <div className="flex justify-between items-center px-2 pt-1">
-                <div>
-                  <h3 className="text-xs font-bold text-stone-800 tracking-tight">The ultimate favorite</h3>
-                  <p className="text-[9px] font-mono text-stone-400 mt-0.5">Staged // June Update</p>
-                </div>
-                <span className="text-[10px] font-mono px-3 py-1 bg-stone-50 border border-stone-100 rounded-full text-stone-500">Dhaka, BD</span>
-              </div>
-            </motion.div>
-          </div>
-
+         {/* LEFT COLUMN: HERO IMAGE CANVAS (7 Columns) */}
+<div className="lg:col-span-7">
+  <motion.div 
+    initial={{ opacity: 0, scale: 0.99 }}
+    animate={{ opacity: 1, scale: 1 }}
+    className="bg-white p-4 pb-12 rounded-[2rem] border border-stone-200/40 shadow-[0_20px_50px_rgba(244,143,177,0.12)]"
+  >
+    <div className="w-full aspect-[4/5] rounded-[1.4rem] overflow-hidden bg-stone-50 mb-5 relative group">
+      {/* ইমেজ সোর্স আগের মতোই array থেকে ডাইনামিকালি লোড হবে */}
+      <img src={images[0]} className="w-full h-full object-cover" alt="Main Capture" />
+    </div>
+    <div className="flex justify-between items-center px-2 pt-1">
+      <div>
+        <h3 className="text-xs font-bold text-stone-800 tracking-tight">Absolutely Gorgeous ✨</h3>
+        <p className="text-[9px] font-mono text-stone-400 mt-0.5">Candid frame</p>
+      </div>
+      <span className="text-[10px] font-mono px-3 py-1 bg-stone-50 border border-stone-100 rounded-full text-stone-500">Dhaka, BD</span>
+    </div>
+  </motion.div>
+</div>
           {/* RIGHT COLUMN: STUFFS & INTERACTIVES (5 Columns) */}
           <div className="lg:col-span-5 flex flex-col gap-6">
 
