@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 export default function ZaimaSpace() {
   const images = [
     "/images/zaima-1.jpg", 
-    "/images/zaima-2.jpg", 
+    "/images/494686438_959940016217240_6648276104973416309_n.jpg", 
     "/images/zaima-3.jpg", 
     "/images/zaima-4.jpg", 
     "/images/zaima-5.jpg", 
