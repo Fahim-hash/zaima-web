@@ -2,136 +2,154 @@
 
 import React, { useState, useEffect } from 'react';
 
-export default function GuessingGame() {
-  const [targetNumber, setTargetNumber] = useState<number>(0);
-  const [guess, setGuess] = useState<string>('');
-  const [message, setMessage] = useState<string>('Start guessing...');
-  const [score, setScore] = useState<number>(20);
-  const [highscore, setHighscore] = useState<number>(0);
-  const [gameOver, setGameOver] = useState<boolean>(false);
-  const [isWon, setIsWon] = useState<boolean>(false);
+export default function MemoryMatrix() {
+  const [gridSize] = useState<number>(16); // 4x4 Grid
+  const [sequence, setSequence] = useState<number[]>([]);
+  const [playerSequence, setPlayerSequence] = useState<number[]>([]);
+  const [isShowing, setIsShowing] = useState<boolean>(false);
+  const [level, setLevel] = useState<number>(1);
+  const [gameState, setGameState] = useState<'idle' | 'watching' | 'playing' | 'failed'>('idle');
 
-  // Initialize game on mount
-  useEffect(() => {
-    initGame();
-  }, []);
+  // Generate random pattern based on current level
+  const generatePattern = (currentLevel: number) => {
+    setGameState('watching');
+    setIsShowing(true);
+    setPlayerSequence([]);
+    
+    // Level 1 = 3 blocks, Level 2 = 4 blocks, etc.
+    const count = currentLevel + 2; 
+    const newSequence: number[] = [];
+    
+    while (newSequence.length < count) {
+      const randomTile = Math.floor(Math.random() * gridSize);
+      if (!newSequence.includes(randomTile)) {
+        newSequence.push(randomTile);
+      }
+    }
+    
+    setSequence(newSequence);
 
-  const initGame = () => {
-    setTargetNumber(Math.floor(Math.random() * 20) + 1);
-    setGuess('');
-    setMessage('Start guessing...');
-    setScore(20);
-    setGameOver(false);
-    setIsWon(false);
+    // Hide pattern after 1.2 seconds
+    setTimeout(() => {
+      setIsShowing(false);
+      setGameState('playing');
+    }, 1200);
   };
 
-  const handleCheck = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (gameOver) return;
+  const handleTileClick = (index: number) => {
+    if (gameState !== 'playing') return;
 
-    const guessNum = parseInt(guess);
-
-    // Validation
-    if (!guessNum || guessNum < 1 || guessNum > 20) {
-      setMessage('⛔ Please enter a number between 1 and 20!');
+    // If clicked a wrong tile
+    if (!sequence.includes(index)) {
+      setGameState('failed');
       return;
     }
 
-    // Match conditions
-    if (guessNum === targetNumber) {
-      setMessage('🎉 Correct Number! You Win!');
-      setIsWon(true);
-      setGameOver(true);
-      if (score > highscore) {
-        setHighscore(score);
-      }
-    } else {
-      if (score > 1) {
-        setMessage(guessNum > targetNumber ? '📈 Too high!' : '📉 Too low!');
-        setScore(prev => prev - 1);
-      } else {
-        setMessage('💥 Game Over! You lost the game.');
-        setScore(0);
-        setGameOver(true);
-      }
+    // If already clicked, ignore
+    if (playerSequence.includes(index)) return;
+
+    const newPlayerSeq = [...playerSequence, index];
+    setPlayerSequence(newPlayerSeq);
+
+    // Check if level cleared
+    if (newPlayerSeq.length === sequence.length) {
+      setGameState('idle');
+      setLevel((prev) => prev + 1);
     }
   };
 
+  const startNextLevel = () => {
+    generatePattern(level);
+  };
+
+  const resetGame = () => {
+    setLevel(1);
+    setSequence([]);
+    setPlayerSequence([]);
+    setGameState('idle');
+  };
+
   return (
-    <div className={`min-h-screen transition-all duration-500 flex flex-col justify-between p-6 md:p-12 font-sans select-none text-white ${
-      isWon ? 'bg-emerald-600' : gameOver ? 'bg-rose-950' : 'bg-zinc-900'
-    }`}>
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col justify-between p-6 font-sans antialiased">
       
-      {/* Header Controls */}
-      <header className="flex justify-between items-center max-w-4xl w-full mx-auto">
-        <button 
-          onClick={initGame}
-          className="px-6 py-2.5 bg-white text-zinc-900 hover:bg-zinc-100 font-bold rounded-xl shadow-lg transform active:scale-95 transition"
-        >
-          Again!
-        </button>
-        <p className="text-sm font-mono tracking-wider opacity-70">(Between 1 and 20)</p>
+      {/* Header Panel */}
+      <header className="max-w-md w-full mx-auto border border-zinc-900 bg-zinc-900/20 backdrop-blur rounded-2xl p-5 flex justify-between items-center shadow-xl mt-4">
+        <div className="space-y-1">
+          <h1 className="text-sm font-black tracking-widest text-zinc-400 uppercase">Memory Matrix</h1>
+          <div className="text-xs font-mono">
+            {gameState === 'idle' && <span className="text-zinc-500">Ready to test?</span>}
+            {gameState === 'watching' && <span className="text-amber-400 animate-pulse">Memorize the pattern...</span>}
+            {gameState === 'playing' && <span className="text-blue-400">Recreate the grid!</span>}
+            {gameState === 'failed' && <span className="text-rose-500 font-bold">Sequence Broken</span>}
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 px-4 py-2 rounded-xl border border-zinc-800 text-center font-mono">
+          <span className="text-[10px] uppercase tracking-wider text-zinc-500 block">Level</span>
+          <span className="text-xl font-black text-white">{level}</span>
+        </div>
       </header>
 
-      {/* Main Visual Arena */}
-      <main className="max-w-4xl w-full mx-auto text-center my-12 space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-4xl md:text-6xl font-black tracking-tight">
-            Guess My Number!
-          </h1>
-          <p className="text-lg md:text-xl font-medium text-zinc-300 min-h-[2rem]">
-            {message}
-          </p>
+      {/* Main Grid Arena */}
+      <main className="max-w-md w-full mx-auto my-auto py-6">
+        <div className="grid grid-cols-4 gap-3 bg-zinc-900/50 p-4 rounded-3xl border border-zinc-900 shadow-2xl aspect-square">
+          {Array.from({ length: gridSize }).map((_, idx) => {
+            const isTarget = sequence.includes(idx);
+            const isClicked = playerSequence.includes(idx);
+            
+            let tileStyle = "bg-zinc-950 border-zinc-850 hover:border-zinc-800";
+            
+            if (isShowing && isTarget) {
+              tileStyle = "bg-amber-500/20 border-amber-500 shadow-lg shadow-amber-500/10";
+            } else if (gameState === 'playing' && isClicked) {
+              tileStyle = "bg-blue-600 border-blue-400 shadow-lg shadow-blue-500/20";
+            } else if (gameState === 'failed' && isTarget) {
+              tileStyle = "bg-rose-950/40 border-rose-600";
+            }
+
+            return (
+              <button
+                key={idx}
+                onClick={() => handleTileClick(idx)}
+                disabled={gameState !== 'playing'}
+                className={`w-full h-full rounded-xl border transition-all duration-200 focus:outline-none disabled:cursor-default ${tileStyle}`}
+              />
+            );
+          })}
         </div>
 
-        {/* Hidden / Revealed Target Shield */}
-        <div className="relative flex justify-center items-center py-6">
-          <div className="absolute inset-x-0 h-[2px] bg-zinc-700/50 z-0" />
-          <div className="w-32 h-32 bg-white text-zinc-900 rounded-2xl flex items-center justify-center text-4xl md:text-5xl font-black shadow-2xl border-4 border-zinc-900 z-10 font-mono animate-bounce">
-            {gameOver ? targetNumber : '?'}
-          </div>
-        </div>
-
-        {/* Action Panel Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-2xl mx-auto pt-6 items-center">
-          
-          {/* Left Side: Inputs */}
-          <form onSubmit={handleCheck} className="space-y-4">
-            <input 
-              type="number" 
-              disabled={gameOver}
-              value={guess}
-              onChange={(e) => setGuess(e.target.value)}
-              placeholder="0"
-              className="w-full text-center bg-transparent border-4 border-white rounded-2xl py-4 text-4xl font-black font-mono focus:outline-none focus:ring-4 focus:ring-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed placeholder-zinc-600"
-            />
-            <button 
-              type="submit"
-              disabled={gameOver}
-              className="w-full py-4 bg-purple-600 hover:bg-purple-500 disabled:bg-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed font-extrabold text-lg uppercase tracking-wider rounded-2xl shadow-xl transition-all active:scale-[0.98]"
+        {/* Dynamic Controls Layout */}
+        <div className="mt-8 text-center min-h-[48px]">
+          {gameState === 'idle' && (
+            <button
+              onClick={startNextLevel}
+              className="inline-flex items-center gap-2 bg-white text-zinc-950 font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-xl hover:bg-zinc-200 transition"
             >
-              Check Score
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+              </svg>
+              {level === 1 ? 'Start Test' : 'Next Level'}
             </button>
-          </form>
+          )}
 
-          {/* Right Side: Score Analytics */}
-          <div className="space-y-4 text-left font-mono text-lg bg-zinc-950/30 p-6 rounded-2xl border border-white/5">
-            <div className="flex justify-between items-center border-b border-white/10 pb-2">
-              <span>💯 Current Score:</span>
-              <span className="font-black text-2xl text-purple-400">{score}</span>
-            </div>
-            <div className="flex justify-between items-center pt-1">
-              <span>🥇 High Score:</span>
-              <span className="font-black text-2xl text-emerald-400">{highscore}</span>
-            </div>
-          </div>
-
+          {gameState === 'failed' && (
+            <button
+              onClick={resetGame}
+              className="inline-flex items-center gap-2 bg-rose-600 text-white font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-xl hover:bg-rose-500 transition shadow-lg shadow-rose-600/20"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+              Try Again
+            </button>
+          )}
         </div>
       </main>
 
-      {/* Footer Branding */}
-      <footer className="text-center font-mono text-xs text-white/40 max-w-4xl w-full mx-auto">
-        BUILT WITH NEXT.JS APP ROUTER // 2026
+      {/* Footer Details */}
+      <footer className="max-w-md w-full mx-auto flex justify-between items-center border-t border-zinc-900/60 pt-4 mb-4 text-[10px] font-mono text-zinc-600">
+        <span>MATRIX RESOLUTION v4.0</span>
+        <span>2026 // SYSTEM</span>
       </footer>
 
     </div>
