@@ -1,0 +1,5 @@
+{
+  "title": "Lights Out",
+  "description": "A tactical matrix override puzzle. Toggle adjacent vectors to clear the field.",
+  "difficulty": "Medium"
+}
