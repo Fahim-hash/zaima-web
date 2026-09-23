@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { isStudioAdmin, unauthorized } from '@/lib/studio-auth';
 import { appendSheet, findRow, readSheet, sendStudioEmail, updateRow, studioBaseUrl } from '@/lib/studio';
 
 export async function POST(request: Request) {
+  if (!isStudioAdmin(request)) return unauthorized();
   try {
     const body = await request.json();
     const paymentId = String(body.paymentId || '');
