@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { isStudioAdmin, unauthorized } from '@/lib/studio-auth';
 import { readSheet } from '@/lib/studio';
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!isStudioAdmin(request)) return unauthorized();
   try {
     const [payments, projects] = await Promise.all([readSheet('Payments'), readSheet('Projects')]);
     const projectMap = new Map(projects.map((p) => [p.slug, p]));
