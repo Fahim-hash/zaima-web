@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { isStudioAdmin, unauthorized } from '@/lib/studio-auth';
 import { createDriveUploadSession } from '@/lib/studio';
 
 export async function POST(request: Request) {
+  if (!isStudioAdmin(request)) return unauthorized();
   try {
     const body = await request.json();
     const name = String(body.name || '').trim();
