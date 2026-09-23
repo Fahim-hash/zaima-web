@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { isStudioAdmin, unauthorized } from '@/lib/studio-auth';
 import { appendSheet, createDriveFolder, makeSlug, studioBaseUrl } from '@/lib/studio';
 
 export async function POST(request: Request) {
+  if (!isStudioAdmin(request)) return unauthorized();
   try {
     const body = await request.json();
     const title = String(body.title || '').trim();
