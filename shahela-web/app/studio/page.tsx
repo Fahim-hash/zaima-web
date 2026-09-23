@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import {
   Activity, ArrowUpRight, Bell, CheckCircle2, ChevronRight, Clock3,
   FolderKanban, LayoutDashboard, MessageSquare, MoreHorizontal, Plus,
-  Search, Settings2, Sparkles, Target, Users, Zap
+  Search, Settings2, Sparkles, Target, Users, Zap, type LucideIcon
 } from 'lucide-react';
 
 const projects = [
@@ -30,10 +30,17 @@ export default function StudioPage() {
     [query]
   );
 
-  const nav = [
+  const nav: Array<[string, LucideIcon]> = [
     ['Overview', LayoutDashboard], ['Projects', FolderKanban], ['Tasks', CheckCircle2],
     ['Moodboards', Target], ['Versions', Activity], ['Feedback', MessageSquare], ['Deliveries', ArrowUpRight],
-  ] as const;
+  ];
+
+  const metrics: Array<[string, string, string, LucideIcon]> = [
+    ['Active projects', '4', '2 need attention', FolderKanban],
+    ['Open tasks', '12', '3 due this week', CheckCircle2],
+    ['Awaiting feedback', '3', '1 client approval', MessageSquare],
+    ['Creative time', '18h', 'This week', Clock3],
+  ];
 
   return (
     <main className="studio-shell">
@@ -59,12 +66,7 @@ export default function StudioPage() {
           <div className="hero"><div><span>YOUR CREATIVE COMMAND CENTER</span><h2>Everything in one place.</h2><p>Plan, create, review and deliver your design work from one focused workspace.</p></div><button className="secondary" onClick={() => setActive('Projects')}>Open pipeline <ChevronRight size={14}/></button></div>
 
           <div className="metrics">
-            {[
-              ['Active projects','4','2 need attention',FolderKanban],
-              ['Open tasks','12','3 due this week',CheckCircle2],
-              ['Awaiting feedback','3','1 client approval',MessageSquare],
-              ['Creative time','18h','This week',Clock3],
-            ].map(([a,b,c,Icon]) => <div className="metric" key={String(a)}><div><span>{a}</span><Icon size={15}/></div><strong>{b}</strong><small>{c}</small></div>)}
+            {metrics.map(([a,b,c,Icon]) => <div className="metric" key={a}><div><span>{a}</span><Icon size={15}/></div><strong>{b}</strong><small>{c}</small></div>)}
           </div>
 
           <div className="two-col">
