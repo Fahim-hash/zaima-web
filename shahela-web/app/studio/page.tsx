@@ -59,7 +59,7 @@ export default function StudioPage() {
       <section className="content">
         <header>
           <div><small>WORKSPACE / {active.toUpperCase()}</small><h1>{active === 'Overview' ? 'Good evening, Fahim.' : active}</h1></div>
-          <div className="actions"><div className="search"><Search size={14}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search workspace..." /></div><button className="icon"><Bell size={16}/></button><button className="primary" onClick={() => setShowCreate(true)}><Plus size={15}/> New project</button></div>
+          <div className="actions"><div className="search"><Search size={14}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search workspace..." /></div><button className="icon"><Bell size={16}/></button><button className="primary" onClick={() => { window.location.href = '/studio/projects/new'; }}><Plus size={15}/> New project</button></div>
         </header>
 
         <div className="body">
