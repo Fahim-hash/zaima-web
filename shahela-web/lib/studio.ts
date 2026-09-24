@@ -7,6 +7,14 @@ const STUDIO_BASE = process.env.NEXT_PUBLIC_STUDIO_BASE_URL || 'https://tometu.a
 const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'studio@syedfahimmuddasir.bro.bd';
 export const STUDIO_UPLOAD_CHUNK_SIZE = 3 * 1024 * 1024;
 
+function base64url(value: string | Buffer) {
+  return Buffer.from(value).toString('base64url');
+}
+
+function decodeBase64url(value: string) {
+  return Buffer.from(value, 'base64url').toString('utf8');
+}
+
 function required(name: string) {
   const value = process.env[name];
   if (!value) throw new Error(`Missing environment variable: ${name}`);
