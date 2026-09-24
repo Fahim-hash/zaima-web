@@ -1,90 +1,172 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  Activity, ArrowUpRight, Bell, CheckCircle2, ChevronRight, Clock3,
-  FolderKanban, LayoutDashboard, MessageSquare, MoreHorizontal, Plus,
-  Search, Settings2, Sparkles, Target, Users, Zap, type LucideIcon
+  ArrowUpRight, Bell, CheckCircle2, ChevronRight, Clock3, CreditCard,
+  FileCheck2, FolderKanban, LayoutDashboard, Menu, MessageSquare,
+  Plus, Search, Settings2, Sparkles, UploadCloud, Users, X, Zap
 } from 'lucide-react';
 
-const projects = [
-  { name: 'MadeSiho — Summer Drop', client: 'MadeSiho', type: 'Brand Identity', progress: 72, status: 'In progress', due: 'Sep 28', tone: 'orange' },
-  { name: 'EmissaryMUN — Ascend', client: 'United Emissary Bangladesh', type: 'Campaign', progress: 88, status: 'Review', due: 'Oct 03', tone: 'purple' },
-  { name: 'TongerKhobor', client: 'Personal Project', type: 'Product Design', progress: 46, status: 'In progress', due: 'Oct 12', tone: 'blue' },
-  { name: 'PayPilot Identity', client: 'Assessment', type: 'Brand Identity', progress: 24, status: 'Draft', due: 'Oct 18', tone: 'green' },
+type Project = {
+  slug: string;
+  title: string;
+  clientName: string;
+  clientEmail: string;
+  price: string;
+  status: string;
+  version: string;
+  updatedAt: string;
+};
+
+const statusMeta: Record<string, { label: string; tone: string }> = {
+  draft: { label: 'Draft', tone: 'muted' },
+  sent: { label: 'Sent', tone: 'blue' },
+  viewed: { label: 'Viewed', tone: 'blue' },
+  approved: { label: 'Approved', tone: 'green' },
+  payment_submitted: { label: 'Payment review', tone: 'orange' },
+  payment_verified: { label: 'Paid', tone: 'green' },
+  revision_requested: { label: 'Revision', tone: 'purple' },
+  delivered: { label: 'Delivered', tone: 'green' },
+};
+
+const nav = [
+  { label: 'Overview', icon: LayoutDashboard, href: '/studio' },
+  { label: 'Projects', icon: FolderKanban, href: '/studio/projects' },
+  { label: 'Payments', icon: CreditCard, href: '/studio/payments' },
+  { label: 'Deliveries', icon: UploadCloud, href: '/studio/deliveries' },
 ];
 
-const tasks = [
-  ['Finalize typography system', 'MadeSiho', 'Today', 'High'],
-  ['Export MUN social pack V3', 'EmissaryMUN', 'Tomorrow', 'High'],
-  ['Write TongerKhobor case study outline', 'TongerKhobor', 'Sep 27', 'Medium'],
-];
+function formatDate(value: string) {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+}
 
 export default function StudioPage() {
-  const [active, setActive] = useState('Overview');
+  const [projects, setProjects] = useState<Project[]>([]);
   const [query, setQuery] = useState('');
-  const [showCreate, setShowCreate] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/studio/projects', { cache: 'no-store' });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to load projects');
+      setProjects(data.projects || []);
+      setError('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to load projects');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { load(); }, []);
 
   const filtered = useMemo(
-    () => projects.filter(p => (p.name + p.client).toLowerCase().includes(query.toLowerCase())),
-    [query]
+    () => projects.filter((project) => (
+      `${project.title} ${project.clientName} ${project.clientEmail}`.toLowerCase().includes(query.toLowerCase())
+    )),
+    [projects, query],
   );
 
-  const nav: Array<[string, LucideIcon]> = [
-    ['Overview', LayoutDashboard], ['Projects', FolderKanban], ['Tasks', CheckCircle2],
-    ['Moodboards', Target], ['Versions', Activity], ['Feedback', MessageSquare], ['Deliveries', ArrowUpRight],
-  ];
-
-  const metrics: Array<[string, string, string, LucideIcon]> = [
-    ['Active projects', '4', '2 need attention', FolderKanban],
-    ['Open tasks', '12', '3 due this week', CheckCircle2],
-    ['Awaiting feedback', '3', '1 client approval', MessageSquare],
-    ['Creative time', '18h', 'This week', Clock3],
-  ];
+  const attention = projects.filter((p) => ['payment_submitted', 'revision_requested'].includes(p.status)).length;
+  const approved = projects.filter((p) => p.status === 'approved').length;
+  const delivered = projects.filter((p) => p.status === 'delivered').length;
 
   return (
-    <main className="studio-shell">
-      <aside className="sidebar">
-        <div className="brand"><div className="mark">T.</div><div><b>tometu<span>.</span>studio</b><small>CREATIVE OS</small></div></div>
-        <label>Workspace</label>
-        <nav>{nav.map(([name, Icon]) => <button key={name} className={active === name ? 'active' : ''} onClick={() => setActive(name)}><Icon size={16}/><span>{name}</span>{name === 'Feedback' && <i>3</i>}</button>)}</nav>
-        <label className="tools">Tools</label>
+    <main className="studio">
+      <aside className={`sidebar ${mobileOpen ? 'open' : ''}`}>
+        <div className="brand"><span className="brand-mark">T</span><div><strong>tometu<span>.</span>studio</strong><small>CLIENT DELIVERY OS</small></div></div>
+        <div className="workspace">FAHIM&apos;S WORKSPACE</div>
         <nav>
-          <button className={active === 'Brief Builder' ? 'active' : ''} onClick={() => setActive('Brief Builder')}><Sparkles size={16}/><span>Brief Builder</span></button>
-          <button className={active === 'Decision Log' ? 'active' : ''} onClick={() => setActive('Decision Log')}><Zap size={16}/><span>Decision Log</span></button>
+          {nav.map(({ label, icon: Icon, href }) => <a key={label} className={label === 'Overview' ? 'active' : ''} href={href}><Icon size={16}/><span>{label}</span></a>)}
         </nav>
-        <div className="account"><div className="avatar">F</div><div><b>Fahim&apos;s Workspace</b><small>Personal Creative OS</small></div><Settings2 size={14}/></div>
+        <div className="side-section">WORKFLOW</div>
+        <div className="workflow">
+          <div><span className="dot orange"/>Create project</div>
+          <div><span className="dot blue"/>Client review</div>
+          <div><span className="dot green"/>Payment</div>
+          <div><span className="dot purple"/>Delivery</div>
+        </div>
+        <div className="side-bottom">
+          <a href="/studio/payments"><CreditCard size={15}/> Payment review <span>{attention}</span></a>
+          <div className="account"><div className="avatar">F</div><div><b>Fahim</b><small>Administrator</small></div><Settings2 size={15}/></div>
+        </div>
       </aside>
 
+      {mobileOpen && <button className="scrim" aria-label="Close menu" onClick={() => setMobileOpen(false)}><X size={20}/></button>}
+
       <section className="content">
-        <header>
-          <div><small>WORKSPACE / {active.toUpperCase()}</small><h1>{active === 'Overview' ? 'Good evening, Fahim.' : active}</h1></div>
-          <div className="actions"><div className="search"><Search size={14}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search workspace..." /></div><button className="icon"><Bell size={16}/></button><button className="primary" onClick={() => { window.location.href = '/studio/projects/new'; }}><Plus size={15}/> New project</button></div>
+        <header className="topbar">
+          <button className="mobile-menu" onClick={() => setMobileOpen(true)}><Menu size={18}/></button>
+          <div><span>WORKSPACE / OVERVIEW</span><h1>Good evening, Fahim.</h1></div>
+          <div className="actions">
+            <div className="search"><Search size={15}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search projects, clients…" /></div>
+            <button className="round"><Bell size={16}/></button>
+            <a className="new-button" href="/studio/projects/new"><Plus size={16}/> New project</a>
+          </div>
         </header>
 
         <div className="body">
-          <div className="hero"><div><span>YOUR CREATIVE COMMAND CENTER</span><h2>Everything in one place.</h2><p>Plan, create, review and deliver your design work from one focused workspace.</p></div><button className="secondary" onClick={() => setActive('Projects')}>Open pipeline <ChevronRight size={14}/></button></div>
+          <section className="hero">
+            <div>
+              <span className="eyebrow">CLIENT DELIVERY OS</span>
+              <h2>From final file to <em>paid.</em></h2>
+              <p>One link for review, approval, payment and delivery — while you keep the files in Drive and the records in Sheets.</p>
+            </div>
+            <a className="hero-action" href="/studio/projects/new"><Plus size={16}/> Start a project</a>
+          </section>
 
-          <div className="metrics">
-            {metrics.map(([a,b,c,Icon]) => <div className="metric" key={a}><div><span>{a}</span><Icon size={15}/></div><strong>{b}</strong><small>{c}</small></div>)}
-          </div>
+          <section className="metrics">
+            <div className="metric"><div><span>Projects</span><FolderKanban size={15}/></div><strong>{projects.length}</strong><small>Total client projects</small></div>
+            <div className="metric"><div><span>Needs attention</span><Zap size={15}/></div><strong>{attention}</strong><small>Payment or revision</small></div>
+            <div className="metric"><div><span>Awaiting approval</span><FileCheck2 size={15}/></div><strong>{approved}</strong><small>Approved projects</small></div>
+            <div className="metric"><div><span>Delivered</span><CheckCircle2 size={15}/></div><strong>{delivered}</strong><small>Completed deliveries</small></div>
+          </section>
 
-          <div className="two-col">
-            <section className="card"><div className="heading"><div><h3>Project velocity</h3><p>Creative output · last 8 weeks</p></div><em>8 weeks</em></div><div className="bars">{[36,48,42,64,57,77,68,91].map((v,i)=><div className="bar" key={i} style={{height: v + '%'}}/>)}</div><div className="axis"><span>Aug 03</span><span>Aug 17</span><span>Aug 31</span><span>Sep 14</span><span>Sep 23</span></div></section>
-            <section className="card"><div className="heading"><div><h3>Needs attention</h3><p>Keep the pipeline moving</p></div><Zap size={15} className="orange"/></div>{[['3','Client feedback','EmissaryMUN — Ascend'],['2','Tasks overdue','MadeSiho — Summer Drop'],['1','Approval pending','Social pack V3']].map(x=><div className="attention" key={x[1]}><b>{x[0]}</b><div><strong>{x[1]}</strong><small>{x[2]}</small></div><ChevronRight size={13}/></div>)}</section>
-          </div>
+          <section className="pipeline card">
+            <div className="section-head"><div><span className="eyebrow">LIVE PIPELINE</span><h3>Client work</h3></div><a href="/studio/projects">View all <ArrowUpRight size={14}/></a></div>
+            {error && <div className="error">{error}</div>}
+            {loading ? <div className="empty">Loading your projects…</div> :
+              filtered.length ? <div className="table-wrap"><table><thead><tr><th>Project</th><th>Client</th><th>Status</th><th>Price</th><th>Updated</th><th/></tr></thead><tbody>
+                {filtered.slice(0, 8).map((project) => { const meta = statusMeta[project.status] || statusMeta.draft; return <tr key={project.slug}>
+                  <td><strong>{project.title}</strong><small>v{project.version || '1'} · {project.clientEmail}</small></td>
+                  <td>{project.clientName}</td>
+                  <td><span className={`status ${meta.tone}`}><i/>{meta.label}</span></td>
+                  <td className="price">৳ {project.price}</td>
+                  <td>{formatDate(project.updatedAt)}</td>
+                  <td><a className="arrow" href={`/studio/review/${project.slug}`}><ChevronRight size={16}/></a></td>
+                </tr>; })}
+              </tbody></table></div> : <div className="empty"><FolderKanban size={25}/><strong>No projects yet</strong><span>Create your first client delivery project.</span><a href="/studio/projects/new">Create project</a></div>}
+          </section>
 
-          <div className="section-head"><div><span>PIPELINE</span><h2>Active projects</h2></div><button onClick={() => setActive('Projects')}>View all <ArrowUpRight size={14}/></button></div>
-          <div className="projects">{filtered.map(p=><article className="project" key={p.name}><div className={'cover '+p.tone}><span>{p.type}</span><MoreHorizontal size={16}/><b>{p.name.split(' — ')[0]}</b></div><div className="project-body"><div className="meta"><span>{p.client}</span><em>{p.status}</em></div><h3>{p.name}</h3><div className="progress-label"><span>Progress</span><b>{p.progress}%</b></div><div className="track"><i style={{width:p.progress+'%'}}/></div><div className="foot"><span>Due {p.due}</span><ArrowUpRight size={13}/></div></div></article>)}</div>
-
-          <div className="two-col bottom"><section className="card"><div className="heading"><div><h3>Next up</h3><p>Tasks across your projects</p></div><Users size={15}/></div>{tasks.map(t=><div className="task" key={t[0]}><CheckCircle2 size={16}/><div><strong>{t[0]}</strong><small>{t[1]} · {t[2]}</small></div><em className={t[3] === 'High' ? 'high' : ''}>{t[3]}</em></div>)}</section><section className="card ai"><div className="ai-icon"><Sparkles size={18}/></div><span>STUDIO INTELLIGENCE</span><h3>Turn project data into creative direction.</h3><p>Briefs, decisions, feedback and approved versions can become one searchable creative context.</p><button className="primary" onClick={() => setActive('Brief Builder')}>Open Brief Builder <ArrowUpRight size={14}/></button></section></div>
+          <section className="bottom-grid">
+            <div className="card flow">
+              <div className="section-head"><div><span className="eyebrow">HOW IT WORKS</span><h3>Your delivery flow</h3></div><Sparkles size={17}/></div>
+              {[
+                ['01','Create','Upload final assets and set your price.','orange'],
+                ['02','Review','Client previews the work and approves or requests changes.','blue'],
+                ['03','Payment','Client submits payment details for your verification.','green'],
+                ['04','Deliver','Approve the payment and Resend sends the final links.','purple'],
+              ].map(([n,title,desc,tone])=><div className="flow-row" key={n}><b className={`flow-number ${tone}`}>{n}</b><div><strong>{title}</strong><span>{desc}</span></div><ChevronRight size={15}/></div>)}
+            </div>
+            <div className="card quick">
+              <span className="eyebrow">QUICK ACTIONS</span><h3>Keep things moving.</h3>
+              <p>Start a client project, check payment submissions or review a delivery.</p>
+              <a href="/studio/projects/new"><Plus size={15}/> New project</a>
+              <a href="/studio/payments"><CreditCard size={15}/> Review payments</a>
+              <a href="/studio/projects"><FolderKanban size={15}/> Open projects</a>
+            </div>
+          </section>
         </div>
       </section>
 
-      {showCreate && <div className="modal" onClick={() => setShowCreate(false)}><div className="modal-box" onClick={e => e.stopPropagation()}><span>NEW PROJECT</span><h2>Start something new.</h2><p>Create the project shell now; briefs, tasks, files and versions can live inside it.</p><input autoFocus placeholder="Project name"/><input placeholder="Client / brand"/><div className="modal-actions"><button className="secondary" onClick={() => setShowCreate(false)}>Cancel</button><button className="primary" onClick={() => setShowCreate(false)}>Create project <ArrowUpRight size={14}/></button></div></div></div>}
-
       <style jsx>{`
-        .studio-shell{min-height:100vh;background:#08090b;color:#f5f5f5;display:flex;font-family:Arial,sans-serif}.sidebar{width:248px;position:fixed;inset:0 auto 0 0;border-right:1px solid #202126;background:#0c0d10;padding:20px 14px;display:flex;flex-direction:column;z-index:10}.brand{display:flex;align-items:center;gap:11px;padding:6px 9px 27px}.mark{width:35px;height:35px;border-radius:10px;background:#f4f4f4;color:#090909;display:grid;place-items:center;font-weight:900}.brand b{font-size:14px}.brand b span{color:#ff6428}.brand small,.account small{display:block;color:#5d6068;font-size:8px;letter-spacing:1.4px;margin-top:3px}.sidebar>label{padding:0 10px 8px;color:#555860;font-size:9px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}.sidebar .tools{margin-top:24px}.sidebar nav{display:grid;gap:2px}.sidebar nav button{border:0;background:none;color:#858791;padding:10px;border-radius:9px;display:flex;align-items:center;gap:11px;font-size:11px;cursor:pointer}.sidebar nav button:hover,.sidebar nav button.active{background:#18191e;color:#fff}.sidebar nav button.active{box-shadow:inset 2px 0 #ff6428}.sidebar nav i{margin-left:auto;color:#ff7040;font-size:9px;font-style:normal}.account{margin-top:auto;border:1px solid #23242a;background:#121318;border-radius:13px;padding:11px;display:flex;align-items:center;gap:9px}.avatar{width:29px;height:29px;border-radius:9px;background:linear-gradient(135deg,#ff8b55,#7e2d16);display:grid;place-items:center;font-size:11px;font-weight:800}.account div:nth-child(2){flex:1;min-width:0}.account b{font-size:9px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.account small{font-size:8px;letter-spacing:0}.content{margin-left:248px;width:calc(100% - 248px)}header{height:72px;border-bottom:1px solid #202126;display:flex;align-items:center;justify-content:space-between;padding:0 34px;position:sticky;top:0;background:rgba(8,9,11,.9);backdrop-filter:blur(18px);z-index:5}header small{font-size:8px;color:#575a62;letter-spacing:1.5px}header h1{font-size:16px;margin:5px 0 0;letter-spacing:-.4px}.actions{display:flex;gap:8px;align-items:center}.search{width:230px;height:34px;border:1px solid #27282e;border-radius:8px;background:#0d0e11;display:flex;align-items:center;gap:7px;padding:0 9px;color:#62646d}.search input{border:0;outline:0;background:none;color:#ddd;width:100%;font-size:10px}.icon,.secondary,.primary{height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:7px;padding:0 11px;font-size:10px;cursor:pointer}.icon,.secondary{border:1px solid #282930;background:#111216;color:#a1a3ac}.icon{width:34px;padding:0}.primary{border:0;background:#f3f3f3;color:#090909;font-weight:700}.body{max-width:1420px;margin:auto;padding:34px}.hero{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px}.hero span,.section-head span,.ai>span,.modal-box>span{font-size:8px;letter-spacing:1.7px;color:#777a84;font-weight:800}.hero h2{font-size:30px;letter-spacing:-1.4px;margin:8px 0 6px}.hero p{font-size:11px;color:#6e7079;margin:0;line-height:1.7}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric,.card,.project{border:1px solid #222329;background:linear-gradient(180deg,#111216,#0f1013);border-radius:14px}.metric{padding:17px}.metric>div{display:flex;justify-content:space-between;color:#686a73;font-size:9px}.metric strong{display:block;font-size:25px;letter-spacing:-1px;margin-top:17px}.metric small{display:block;color:#555861;font-size:9px;margin-top:3px}.two-col{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-top:10px}.card{padding:18px}.heading{display:flex;justify-content:space-between}.heading h3{font-size:12px;margin:0}.heading p{font-size:9px;color:#565861;margin:5px 0 0}.heading em{font-style:normal;border:1px solid #292a30;background:#17181c;border-radius:20px;color:#777983;font-size:8px;padding:5px 8px}.bars{height:150px;display:flex;align-items:flex-end;gap:8px;border-bottom:1px solid #24252b;margin-top:17px;padding:0 8px}.bar{flex:1;background:linear-gradient(180deg,#ff8756,#ff6428);border-radius:4px 4px 0 0;opacity:.78}.axis{display:flex;justify-content:space-between;color:#42444c;font-size:8px;margin-top:8px}.orange{color:#ff6428}.attention{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #1e1f24}.attention:last-child{border:0}.attention>b{width:27px;height:27px;border-radius:8px;background:#17181c;display:grid;place-items:center;color:#ff7040;font-size:10px}.attention div{flex:1}.attention strong,.attention small{display:block}.attention strong{font-size:10px}.attention small{font-size:8px;color:#555861;margin-top:3px}.section-head{display:flex;justify-content:space-between;align-items:flex-end;margin:31px 0 12px}.section-head h2{font-size:19px;letter-spacing:-.6px;margin:6px 0 0}.section-head button{border:0;background:none;color:#777983;font-size:9px;display:flex;gap:5px;align-items:center;cursor:pointer}.projects{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.project{overflow:hidden}.cover{height:118px;padding:12px;display:flex;justify-content:space-between;position:relative;overflow:hidden}.cover:after{content:'';position:absolute;inset:25% -20% -40%;background:radial-gradient(circle,rgba(255,255,255,.15),transparent 62%)}.cover.orange{background:linear-gradient(135deg,#29201d,#111214 58%,#35170e)}.cover.purple{background:linear-gradient(135deg,#211b2c,#111214 58%,#29153a)}.cover.blue{background:linear-gradient(135deg,#17252d,#101214 58%,#10242c)}.cover.green{background:linear-gradient(135deg,#18251e,#111214 58%,#12281e)}.cover>span,.cover>svg,.cover>b{z-index:1}.cover>span{font-size:8px;color:#aaa}.cover>b{position:absolute;left:12px;bottom:12px;font-size:20px;letter-spacing:-1px}.project-body{padding:14px}.meta,.progress-label,.foot{display:flex;justify-content:space-between;align-items:center}.meta{color:#555861;font-size:8px}.meta em{font-style:normal;border:1px solid #292a30;border-radius:20px;padding:4px 7px;color:#999}.project h3{font-size:11px;min-height:27px;margin:11px 0 16px}.progress-label{color:#555861;font-size:8px}.progress-label b{color:#a7a8af}.track{height:4px;background:#24252a;border-radius:20px;overflow:hidden;margin-top:6px}.track i{display:block;height:100%;background:#ff6428;border-radius:20px}.foot{margin-top:12px;color:#555861;font-size:8px}.bottom{margin-bottom:25px}.task{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #1f2025;color:#555861}.task:last-child{border:0}.task div{flex:1}.task strong,.task small{display:block}.task strong{font-size:10px;color:#ddd}.task small{font-size:8px;margin-top:3px}.task em{font-style:normal;font-size:8px}.task em.high{color:#ff7040}.ai{display:flex;flex-direction:column;align-items:flex-start}.ai-icon{width:36px;height:36px;border-radius:11px;background:#231812;color:#ff7040;display:grid;place-items:center;margin-bottom:18px}.ai h3{font-size:16px;line-height:1.3;max-width:330px;margin:9px 0}.ai p{font-size:9px;color:#666871;line-height:1.7;margin:0 0 18px;max-width:370px}.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);z-index:30;display:grid;place-items:center;padding:20px}.modal-box{width:min(430px,100%);border:1px solid #2a2b31;background:#111216;border-radius:18px;padding:25px;box-shadow:0 30px 80px #000}.modal-box h2{font-size:22px;margin:7px 0}.modal-box p{font-size:10px;color:#6a6c75;line-height:1.7}.modal-box input{width:100%;height:42px;border:1px solid #292a30;background:#0b0c0f;color:#eee;border-radius:9px;padding:0 12px;margin-top:8px;outline:0;font-size:11px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}@media(max-width:1100px){.projects{grid-template-columns:repeat(2,1fr)}.metrics{grid-template-columns:repeat(2,1fr)}}@media(max-width:800px){.sidebar{width:68px;padding:14px 8px}.brand>div:last-child,.sidebar>label,.sidebar nav span,.sidebar nav i,.account>div:nth-child(2),.account>svg{display:none}.brand{justify-content:center}.sidebar nav button,.account{justify-content:center}.content{margin-left:68px;width:calc(100% - 68px)}header{padding:0 18px}.search{display:none}.body{padding:22px 18px}.two-col{grid-template-columns:1fr}}@media(max-width:560px){.metrics,.projects{grid-template-columns:1fr}.hero{display:block}.hero .secondary{margin-top:15px}.studio-shell{font-size:14px}header{padding:14px 16px;height:auto}.actions .icon{display:none}}
+        .studio{min-height:100vh;background:#07080a;color:#f5f5f6;display:flex;font-family:Arial,sans-serif}.sidebar{width:252px;position:fixed;inset:0 auto 0 0;background:#0b0c0f;border-right:1px solid #202127;padding:20px 14px;display:flex;flex-direction:column;z-index:40}.brand{display:flex;align-items:center;gap:10px;padding:3px 8px 30px}.brand-mark{width:34px;height:34px;border-radius:10px;background:#f3f3f3;color:#08090a;display:grid;place-items:center;font-weight:900}.brand strong{font-size:13px}.brand strong span{color:#ff6a2b}.brand small{display:block;color:#555861;font-size:7px;letter-spacing:1.6px;margin-top:4px}.workspace,.side-section{font-size:8px;letter-spacing:1.7px;color:#4f525b;font-weight:800;padding:0 10px 9px}.sidebar nav{display:grid;gap:2px}.sidebar nav a,.side-bottom>a{height:38px;padding:0 10px;border-radius:9px;color:#777a84;text-decoration:none;display:flex;align-items:center;gap:10px;font-size:10px}.sidebar nav a:hover,.sidebar nav a.active{background:#17181c;color:#fff}.sidebar nav a.active{box-shadow:inset 2px 0 #ff6a2b}.side-section{margin-top:28px}.workflow{display:grid;gap:13px;padding:5px 10px;color:#696c75;font-size:9px}.workflow div{display:flex;align-items:center;gap:9px}.dot{width:7px;height:7px;border-radius:50%;background:#555}.dot.orange{background:#ff6a2b}.dot.blue{background:#6f91ff}.dot.green{background:#61ce91}.dot.purple{background:#a983ff}.side-bottom{margin-top:auto;display:grid;gap:10px}.side-bottom>a{background:#111216;border:1px solid #23242a}.side-bottom>a span{margin-left:auto;color:#ff8050}.account{border:1px solid #23242a;background:#111216;border-radius:12px;padding:10px;display:flex;align-items:center;gap:9px}.avatar{width:29px;height:29px;border-radius:9px;background:linear-gradient(135deg,#ff8b55,#7c2b15);display:grid;place-items:center;font-size:10px;font-weight:800}.account>div:nth-child(2){flex:1}.account b,.account small{display:block}.account b{font-size:9px}.account small{font-size:8px;color:#565963;margin-top:3px}.content{margin-left:252px;width:calc(100% - 252px)}.topbar{height:76px;border-bottom:1px solid #202127;display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;background:rgba(7,8,10,.84);backdrop-filter:blur(20px);z-index:20}.topbar>div:first-of-type>span{font-size:8px;letter-spacing:1.7px;color:#555861}.topbar h1{font-size:16px;margin:5px 0 0;letter-spacing:-.3px}.actions{display:flex;align-items:center;gap:8px}.search{height:36px;width:260px;border:1px solid #292a31;background:#0c0d10;border-radius:9px;display:flex;align-items:center;gap:8px;padding:0 10px;color:#5f626c}.search input{background:none;border:0;outline:0;color:#eee;width:100%;font-size:10px}.round{width:36px;height:36px;border:1px solid #292a31;background:#111216;color:#9c9ea6;border-radius:9px;display:grid;place-items:center}.new-button,.hero-action{height:36px;padding:0 13px;border-radius:9px;background:#f3f3f4;color:#08090a;text-decoration:none;font-size:10px;font-weight:800;display:flex;align-items:center;gap:7px}.body{max-width:1480px;margin:auto;padding:34px}.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:25px}.hero .eyebrow{display:block}.eyebrow{font-size:8px;letter-spacing:1.9px;color:#6b6e77;font-weight:800}.hero h2{font-size:36px;letter-spacing:-1.8px;margin:9px 0 9px}.hero h2 em{font-style:normal;color:#ff6a2b}.hero p{font-size:11px;line-height:1.7;color:#666a73;max-width:650px;margin:0}.hero-action{height:40px;background:#16171b;color:#ddd;border:1px solid #2b2c32}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric,.card{border:1px solid #222329;background:linear-gradient(180deg,#111216,#0e0f12);border-radius:15px}.metric{padding:17px}.metric>div{display:flex;justify-content:space-between;color:#62656e;font-size:9px}.metric strong{display:block;font-size:28px;letter-spacing:-1.3px;margin-top:18px}.metric small{display:block;color:#50535c;font-size:8px;margin-top:4px}.card{padding:20px}.pipeline{margin-top:10px}.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin-bottom:17px}.section-head h3{font-size:15px;margin:6px 0 0}.section-head>a{color:#747780;text-decoration:none;font-size:9px;display:flex;align-items:center;gap:5px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th{text-align:left;color:#4f525a;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:9px 12px;border-bottom:1px solid #24252b}td{padding:14px 12px;border-bottom:1px solid #1d1e23;color:#858791;font-size:9px}td:first-child{color:#eee}td strong,td small{display:block}td small{color:#4f525a;font-size:8px;margin-top:4px}.price{color:#ddd;font-weight:700}.status{display:inline-flex;align-items:center;gap:6px;border:1px solid #2a2b31;border-radius:999px;padding:5px 8px;color:#aaa;font-size:8px}.status i{width:5px;height:5px;border-radius:50%;background:#777}.status.orange i{background:#ff7a43}.status.green i{background:#62d291}.status.blue i{background:#7c98ff}.status.purple i{background:#a783ff}.arrow{width:28px;height:28px;border:1px solid #292a30;border-radius:8px;color:#777;display:grid;place-items:center}.empty{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:#60636d;font-size:10px}.empty strong{color:#b8bac0;font-size:12px}.empty a{margin-top:8px;color:#ddd;text-decoration:none;border:1px solid #303139;border-radius:8px;padding:9px 12px}.error{padding:12px;border:1px solid #5a3030;background:#1d1214;color:#ffb4ae;border-radius:9px;font-size:10px;margin-bottom:12px}.bottom-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:10px;margin-top:10px}.flow-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #1e1f24}.flow-row:last-child{border:0}.flow-number{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;font-size:8px}.flow-number.orange{background:#26170f;color:#ff8050}.flow-number.blue{background:#121a2d;color:#7c9aff}.flow-number.green{background:#10251a;color:#69d79a}.flow-number.purple{background:#1e1630;color:#ad8aff}.flow-row>div{flex:1}.flow-row strong,.flow-row span{display:block}.flow-row strong{font-size:10px}.flow-row span{font-size:8px;color:#555861;margin-top:3px;line-height:1.5}.flow-row>svg{color:#45474f}.quick{display:flex;flex-direction:column;align-items:flex-start}.quick h3{font-size:18px;margin:8px 0}.quick p{font-size:9px;line-height:1.7;color:#62656e;max-width:310px;margin:0 0 16px}.quick>a{width:100%;box-sizing:border-box;padding:11px;border:1px solid #27282e;background:#111216;border-radius:9px;color:#aaa;text-decoration:none;font-size:9px;display:flex;align-items:center;gap:8px;margin-top:7px}.quick>a:hover{color:#fff;border-color:#3b3c44}.mobile-menu,.scrim{display:none}@media(max-width:1050px){.metrics{grid-template-columns:repeat(2,1fr)}.bottom-grid{grid-template-columns:1fr}.search{width:210px}}@media(max-width:800px){.sidebar{transform:translateX(-100%);transition:.2s}.sidebar.open{transform:none}.content{margin-left:0;width:100%}.topbar{padding:0 18px}.mobile-menu{display:grid;width:34px;height:34px;border:1px solid #292a31;background:#111216;color:#aaa;border-radius:8px;place-items:center;margin-right:10px}.topbar{justify-content:flex-start}.topbar>div:first-of-type{flex:1}.topbar .actions .search,.topbar .actions .round{display:none}.scrim{display:block;position:fixed;inset:0;border:0;background:rgba(0,0,0,.55);z-index:30}.body{padding:24px 16px}.hero{display:block}.hero-action{margin-top:17px;width:max-content}}@media(max-width:560px){.metrics{grid-template-columns:1fr 1fr}.new-button{font-size:0;width:36px;padding:0;justify-content:center}.hero h2{font-size:31px}.card{padding:16px}.metrics .metric strong{font-size:24px}}
       `}</style>
     </main>
   );
