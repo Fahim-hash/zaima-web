@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
 import { isStudioAdmin, unauthorized } from '@/lib/studio-auth';
-import { appendSheet, createDriveFolder, makeSlug, studioBaseUrl } from '@/lib/studio';
+import { appendSheet, createDriveFolder, makeSlug, readSheet, studioBaseUrl } from '@/lib/studio';
+
+export async function GET(request: Request) {
+  if (!isStudioAdmin(request)) return unauthorized();
+  try {
+    const projects = await readSheet('Projects');
+    return NextResponse.json({ projects: projects.reverse() });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Projects loading failed' }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   if (!isStudioAdmin(request)) return unauthorized();
