@@ -1,4 +1,4 @@
-import { createHash, createHmac, createSign, randomBytes, timingSafeEqual } from 'crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'crypto';
 
 type Row = Record<string, string>;
 
