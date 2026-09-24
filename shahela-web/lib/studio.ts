@@ -13,50 +13,38 @@ function required(name: string) {
   return value;
 }
 
-function base64url(input: string | Buffer) {
-  return Buffer.from(input).toString('base64url');
-}
-
-function decodeBase64url(input: string) {
-  return Buffer.from(input, 'base64url').toString('utf8');
-}
-
-function serviceAccountToken() {
-  const email = required('GOOGLE_CLIENT_EMAIL');
-  const key = required('GOOGLE_PRIVATE_KEY').replace(/\\n/g, '\n');
-  const now = Math.floor(Date.now() / 1000);
-  const header = base64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
-  const claim = base64url(JSON.stringify({
-    iss: email,
-    scope: GOOGLE_SCOPE,
-    aud: 'https://oauth2.googleapis.com/token',
-    iat: now,
-    exp: now + 3600,
-  }));
-  const unsigned = `${header}.${claim}`;
-  const signer = createSign('RSA-SHA256');
-  signer.update(unsigned);
-  return `${unsigned}.${base64url(signer.sign(key))}`;
-}
-
 let tokenCache: { token: string; expiresAt: number } | null = null;
 
 async function googleToken() {
   if (tokenCache && tokenCache.expiresAt > Date.now() + 60_000) return tokenCache.token;
-  const jwt = serviceAccountToken();
+
+  const clientId = required('GOOGLE_CLIENT_ID');
+  const clientSecret = required('GOOGLE_CLIENT_SECRET');
+  const refreshToken = required('GOOGLE_REFRESH_TOKEN');
+
   const response = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      assertion: jwt,
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+      grant_type: 'refresh_token',
     }),
     cache: 'no-store',
   });
-  if (!response.ok) throw new Error(`Google auth failed: ${response.status} ${await response.text()}`);
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Google OAuth refresh failed: ${response.status} ${body.slice(0, 800)}`);
+  }
+
   const data = await response.json();
-  tokenCache = { token: data.access_token, expiresAt: Date.now() + Number(data.expires_in) * 1000 };
-  return data.access_token as string;
+  tokenCache = {
+    token: data.access_token as string,
+    expiresAt: Date.now() + Number(data.expires_in || 3600) * 1000,
+  };
+  return tokenCache.token;
 }
 
 async function googleFetch(url: string, init: RequestInit = {}) {
@@ -64,6 +52,7 @@ async function googleFetch(url: string, init: RequestInit = {}) {
   const headers = new Headers(init.headers);
   headers.set('Authorization', `Bearer ${token}`);
   const response = await fetch(url, { ...init, headers, cache: 'no-store' });
+
   if (!response.ok) {
     const body = await response.text();
     throw new Error(`Google API ${response.status}: ${body.slice(0, 800)}`);
