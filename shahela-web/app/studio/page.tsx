@@ -54,6 +54,7 @@ export default function StudioPage() {
     try {
       const response = await fetch('/api/studio/projects', { cache: 'no-store' });
       const data = await response.json();
+      if (response.status === 401) { window.location.href = '/studio/login'; return; }
       if (!response.ok) throw new Error(data.error || 'Unable to load projects');
       setProjects(data.projects || []);
       setError('');
