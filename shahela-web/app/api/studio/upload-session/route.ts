@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 import { isStudioAdmin, unauthorized } from '@/lib/studio-auth';
-import { createDriveUploadSession } from '@/lib/studio';
+import { createDriveUploadSession, createUploadTicket } from '@/lib/studio';
+
+export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   if (!isStudioAdmin(request)) return unauthorized();
+
   try {
     const body = await request.json();
     const name = String(body.name || '').trim();
@@ -12,12 +15,24 @@ export async function POST(request: Request) {
     const parentId = String(body.parentId || '').trim();
 
     if (!name || !parentId || !Number.isFinite(size) || size <= 0) {
-      return NextResponse.json({ error: 'name, size and parentId are required.' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'name, size and parentId are required.' },
+        { status: 400 },
+      );
     }
 
-    const uploadUrl = await createDriveUploadSession(name, mimeType, size, parentId);
-    return NextResponse.json({ ok: true, uploadUrl });
+    const sessionUrl = await createDriveUploadSession(name, mimeType, size, parentId);
+    const uploadTicket = createUploadTicket({ sessionUrl, name, mimeType, size });
+
+    return NextResponse.json({
+      ok: true,
+      uploadTicket,
+      chunkSize: 3 * 1024 * 1024,
+    });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Upload session failed' }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Upload session failed' },
+      { status: 500 },
+    );
   }
 }
