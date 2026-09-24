@@ -52,7 +52,7 @@ export default function PaymentSettingsPage(){
         </section>
         <section className="panel list">
           <div className="panel-head"><span>CONFIGURED</span><h3>Client payment options</h3></div>
-          {methods.length?methods.map(m=><div className={`method ${m.enabled==='false'?'disabled':''`} key={m.name}><div className="method-icon"><CreditCard size={16}/></div><div><strong>{m.name}</strong><small>{m.accountNumber||'No account number set'}</small></div><span className="badge">{m.enabled==='false'?'Hidden':'Active'}</span><button onClick={()=>edit(m)}><Check size={14}/> Edit</button><button onClick={()=>remove(m)}><Trash2 size={14}/></button></div>):<div className="empty">No payment methods yet.</div>}
+          {methods.length?methods.map(m=><div className={`method ${m.enabled==='false'?'disabled':''}`} key={m.name}><div className="method-icon"><CreditCard size={16}/></div><div><strong>{m.name}</strong><small>{m.accountNumber||'No account number set'}</small></div><span className="badge">{m.enabled==='false'?'Hidden':'Active'}</span><button onClick={()=>edit(m)}><Check size={14}/> Edit</button><button onClick={()=>remove(m)}><Trash2 size={14}/></button></div>):<div className="empty">No payment methods yet.</div>}
         </section>
       </div>
     </div>
