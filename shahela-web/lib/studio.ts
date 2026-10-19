@@ -1,8 +1,9 @@
-import { createHash, createHmac, randomBytes, timingSafeEqual } from 'crypto';
+import { createHash, createHmac, createSign, randomBytes, timingSafeEqual } from 'crypto';
 
 type Row = Record<string, string>;
 
 const GOOGLE_SCOPE = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets';
+const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const STUDIO_BASE = process.env.NEXT_PUBLIC_STUDIO_BASE_URL || 'https://tometu.ami.bd';
 const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'studio@syedfahimmuddasir.bro.bd';
 export const STUDIO_UPLOAD_CHUNK_SIZE = 3 * 1024 * 1024;
@@ -26,25 +27,38 @@ let tokenCache: { token: string; expiresAt: number } | null = null;
 async function googleToken() {
   if (tokenCache && tokenCache.expiresAt > Date.now() + 60_000) return tokenCache.token;
 
-  const clientId = required('GOOGLE_CLIENT_ID');
-  const clientSecret = required('GOOGLE_CLIENT_SECRET');
-  const refreshToken = required('GOOGLE_REFRESH_TOKEN');
+  const clientEmail = required('GOOGLE_CLIENT_EMAIL');
+  const privateKey = required('GOOGLE_PRIVATE_KEY').replace(/\\n/g, '\n');
+  const now = Math.floor(Date.now() / 1000);
+  const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString('base64url');
+  const unsigned = [
+    encode({ alg: 'RS256', typ: 'JWT' }),
+    encode({
+      iss: clientEmail,
+      scope: GOOGLE_SCOPE,
+      aud: GOOGLE_TOKEN_URL,
+      iat: now,
+      exp: now + 3600,
+    }),
+  ].join('.');
+  const signer = createSign('RSA-SHA256');
+  signer.update(unsigned);
+  signer.end();
+  const assertion = `${unsigned}.${signer.sign(privateKey, 'base64url')}`;
 
-  const response = await fetch('https://oauth2.googleapis.com/token', {
+  const response = await fetch(GOOGLE_TOKEN_URL, {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token',
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion,
     }),
     cache: 'no-store',
   });
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Google OAuth refresh failed: ${response.status} ${body.slice(0, 800)}`);
+    throw new Error(`Google service-account authentication failed: ${response.status} ${body.slice(0, 800)}`);
   }
 
   const data = await response.json();
