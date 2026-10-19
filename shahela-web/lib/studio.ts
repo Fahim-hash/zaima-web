@@ -1,4 +1,4 @@
-import { createHash, createHmac, createSign, randomBytes, timingSafeEqual } from 'crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'crypto';
 
 type Row = Record<string, string>;
 
@@ -27,38 +27,25 @@ let tokenCache: { token: string; expiresAt: number } | null = null;
 async function googleToken() {
   if (tokenCache && tokenCache.expiresAt > Date.now() + 60_000) return tokenCache.token;
 
-  const clientEmail = required('GOOGLE_CLIENT_EMAIL');
-  const privateKey = required('GOOGLE_PRIVATE_KEY').replace(/\\n/g, '\n');
-  const now = Math.floor(Date.now() / 1000);
-  const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString('base64url');
-  const unsigned = [
-    encode({ alg: 'RS256', typ: 'JWT' }),
-    encode({
-      iss: clientEmail,
-      scope: GOOGLE_SCOPE,
-      aud: GOOGLE_TOKEN_URL,
-      iat: now,
-      exp: now + 3600,
-    }),
-  ].join('.');
-  const signer = createSign('RSA-SHA256');
-  signer.update(unsigned);
-  signer.end();
-  const assertion = `${unsigned}.${signer.sign(privateKey, 'base64url')}`;
+  const clientId = required('GOOGLE_CLIENT_ID');
+  const clientSecret = required('GOOGLE_CLIENT_SECRET');
+  const refreshToken = required('GOOGLE_REFRESH_TOKEN');
 
   const response = await fetch(GOOGLE_TOKEN_URL, {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      assertion,
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+      grant_type: 'refresh_token',
     }),
     cache: 'no-store',
   });
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Google service-account authentication failed: ${response.status} ${body.slice(0, 800)}`);
+    throw new Error(`Google OAuth refresh failed: ${response.status} ${body.slice(0, 800)}`);
   }
 
   const data = await response.json();
