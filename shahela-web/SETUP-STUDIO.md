@@ -2,31 +2,33 @@
 
 The Studio app lives at `https://tometu.ami.bd/studio`. Original public pages are not changed.
 
-## Google authentication
+## Why Google Drive uses OAuth
 
-Studio uses a Google service account and server-side JWT authentication. No OAuth refresh token is required.
+Service accounts do not have personal My Drive storage quota and can fail with `403 storageQuotaExceeded`. Studio therefore uses OAuth refresh-token authentication so uploads and Sheets requests run as your Google account.
 
 ## 1. Google Cloud project
 
 1. Create/select a Google Cloud project.
 2. Enable **Google Drive API** and **Google Sheets API**.
-3. Create a service account and create a JSON key.
-4. In Vercel, set these values from the JSON key:
-   - `GOOGLE_CLIENT_EMAIL`: the service account's `client_email`
-   - `GOOGLE_PRIVATE_KEY`: the full `private_key` including the BEGIN/END lines
-5. Set the service account's email as an Editor on the spreadsheet and share the Drive folder with it.
+3. Configure the OAuth consent screen.
+4. Create an OAuth Client ID for a **Web application** and keep its Client ID and Client Secret.
+5. Authorize the Google account that owns or has Editor access to the target Drive folder and Sheet. Use these scopes:
 
-Keep the private key server-side only. Never commit it to GitHub or expose it through a `NEXT_PUBLIC_` variable.
+```
+https://www.googleapis.com/auth/drive
+https://www.googleapis.com/auth/spreadsheets
+```
 
-**Drive quota limitation:** service accounts do not have personal My Drive storage quota. If uploads fail with `403 storageQuotaExceeded`, use a Google Workspace Shared Drive that supports service-account access, or switch back to OAuth authorization as a user. Sharing an ordinary personal My Drive folder with the service account does not grant it personal storage quota.
+Use an OAuth flow that requests offline access and returns a refresh token. Keep all OAuth secrets server-side; never commit tokens or secrets to GitHub or expose them through `NEXT_PUBLIC_` variables.
 
 ## 2. Vercel environment variables
 
 Required Studio variables:
 
 ```
-GOOGLE_CLIENT_EMAIL=
-GOOGLE_PRIVATE_KEY=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REFRESH_TOKEN=
 GOOGLE_SHEET_ID=
 GOOGLE_DRIVE_FOLDER_ID=
 
@@ -40,13 +42,7 @@ STUDIO_ADMIN_SECRET=
 NEXT_PUBLIC_STUDIO_BASE_URL=https://tometu.ami.bd
 ```
 
-Remove these no-longer-used OAuth variables if present:
-
-```
-GOOGLE_CLIENT_ID
-GOOGLE_CLIENT_SECRET
-GOOGLE_REFRESH_TOKEN
-```
+The old service-account variables `GOOGLE_CLIENT_EMAIL` and `GOOGLE_PRIVATE_KEY` are no longer used by the Studio code. Remove them from Vercel after the OAuth variables are configured.
 
 ## 3. Google Drive folder
 
