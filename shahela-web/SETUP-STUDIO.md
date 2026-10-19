@@ -2,43 +2,51 @@
 
 The Studio app lives at `https://tometu.ami.bd/studio`. Original public pages are not changed.
 
-## Why Google Drive now uses OAuth
+## Google authentication
 
-Do **not** use a Google service account for your personal My Drive storage. Google returns:
-
-`403 storageQuotaExceeded — Service Accounts do not have storage quota`
-
-Studio therefore uses a Google OAuth refresh token. The Drive and Sheets operations run as **your Google account**, so files use your account's normal Drive quota.
+Studio uses a Google service account and server-side JWT authentication. No OAuth refresh token is required.
 
 ## 1. Google Cloud project
 
-In Google Cloud Console:
+1. Create/select a Google Cloud project.
+2. Enable **Google Drive API** and **Google Sheets API**.
+3. Create a service account and create a JSON key.
+4. In Vercel, set these values from the JSON key:
+   - `GOOGLE_CLIENT_EMAIL`: the service account's `client_email`
+   - `GOOGLE_PRIVATE_KEY`: the full `private_key` including the BEGIN/END lines
+5. Set the service account's email as an Editor on the spreadsheet and share the Drive folder with it.
 
-1. Create/select a project.
-2. Enable **Google Drive API**.
-3. Enable **Google Sheets API**.
-4. Configure the OAuth consent screen.
-5. Create an OAuth Client ID for a **Web application**.
-6. Keep the generated:
-   - Client ID
-   - Client Secret
+Keep the private key server-side only. Never commit it to GitHub or expose it through a `NEXT_PUBLIC_` variable.
 
-Use a Google account that owns or has Editor access to the Drive folder and Sheet.
+**Drive quota limitation:** service accounts do not have personal My Drive storage quota. If uploads fail with `403 storageQuotaExceeded`, use a Google Workspace Shared Drive that supports service-account access, or switch back to OAuth authorization as a user. Sharing an ordinary personal My Drive folder with the service account does not grant it personal storage quota.
 
-## 2. Get a refresh token
+## 2. Vercel environment variables
 
-Use Google's OAuth 2.0 flow with these scopes:
+Required Studio variables:
 
 ```
-https://www.googleapis.com/auth/drive
-https://www.googleapis.com/auth/spreadsheets
+GOOGLE_CLIENT_EMAIL=
+GOOGLE_PRIVATE_KEY=
+GOOGLE_SHEET_ID=
+GOOGLE_DRIVE_FOLDER_ID=
+
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=Studio <studio@syedfahimmuddasir.bro.bd>
+
+STUDIO_ADMIN_EMAIL=
+STUDIO_ADMIN_PASSWORD=
+STUDIO_ADMIN_SECRET=
+
+NEXT_PUBLIC_STUDIO_BASE_URL=https://tometu.ami.bd
 ```
 
-For the initial authorization, request offline access so Google returns a refresh token.
+Remove these no-longer-used OAuth variables if present:
 
-If you use Google's OAuth Playground, authorize the two scopes above with the Google account whose Drive you want to use, exchange the authorization code for tokens, and copy the **refresh token**. Keep it private.
-
-Do not put the refresh token in client-side code or GitHub.
+```
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+GOOGLE_REFRESH_TOKEN
+```
 
 ## 3. Google Drive folder
 
