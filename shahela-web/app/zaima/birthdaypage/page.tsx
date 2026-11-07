@@ -26,7 +26,7 @@ function getNextBirthday() {
 export default function BirthdayPage() {
   const reduceMotion = useReducedMotion();
   const touchStartX = useRef<number | null>(null);
-  const celebrateTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const celebrateTimer = useRef<number | null>(null);
   const [activeMemory, setActiveMemory] = useState<number | null>(null);
   const [target] = useState(() => getNextBirthday());
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
