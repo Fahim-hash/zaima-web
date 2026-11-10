@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import { isStudioAdmin, unauthorized } from '@/lib/studio-auth';
-import { appendSheet, createDriveFolder, makeSlug, readSheet, studioBaseUrl } from '@/lib/studio';
+import { appendSheet, createDriveFolder, makeDriveFilePrivate, makeSlug, readSheet, studioBaseUrl } from '@/lib/studio';
 
 export async function GET(request: Request) {
   if (!isStudioAdmin(request)) return unauthorized();
   try {
-    const projects = await readSheet('Projects');
+    const [projects, files] = await Promise.all([readSheet('Projects'), readSheet('Files')]);
+    // Migrate legacy uploads that were previously shared as anyone-with-link.
+    await Promise.all(files.filter((file) => file.status !== 'deleted' && file.driveFileId).map((file) => makeDriveFilePrivate(file.driveFileId)));
     return NextResponse.json({ projects: projects.reverse() });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Projects loading failed' }, { status: 500 });
