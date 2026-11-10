@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { appendSheet, findRow, readSheet, sendStudioEmail, updateRow, studioBaseUrl } from '@/lib/studio';
+import { appendSheet, findRow, makeDriveFilePrivate, readSheet, sendStudioEmail, updateRow, studioBaseUrl } from '@/lib/studio';
 
 export async function GET(request: Request) {
   try {
@@ -8,6 +8,8 @@ export async function GET(request: Request) {
     if (!project) return NextResponse.json({ error: 'Review link not found.' }, { status: 404 });
 
     const files = (await readSheet('Files')).filter((row) => row.projectSlug === slug && row.status !== 'deleted');
+    // Revoke legacy anyone-with-link permissions as older projects are opened.
+    await Promise.all(files.filter((file) => file.driveFileId).map((file) => makeDriveFilePrivate(file.driveFileId)));
     const payments = (await readSheet('Payments')).filter((row) => row.projectSlug === slug);
     const methods = (await readSheet('PaymentMethods')).filter((row) => row.enabled !== 'false');
 
