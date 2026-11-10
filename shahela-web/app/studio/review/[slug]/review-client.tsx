@@ -162,9 +162,10 @@ export default function ReviewClient({ slug }: { slug:string }) {
     {revision && <div className="modal"><div className="modal-card"><button className="close" onClick={()=>setRevision(false)}><X size={17}/></button><span className="eyebrow">REVISION REQUEST</span><h2>What should change?</h2><p>Describe the edits clearly. Studio will save the request and open WhatsApp with your message ready to send.</p><textarea autoFocus rows={7} value={message} onChange={e=>setMessage(e.target.value)} placeholder="Example: Please make the headline larger and change the background to a lighter blue."/><button className="approve" disabled={busy} onClick={requestRevision}><MessageCircle size={15}/> Open WhatsApp</button></div></div>}
 
     {showPaymentModal && <div className="modal" onClick={()=>setShowPaymentModal(false)}><div className="modal-card payment-modal" onClick={e=>e.stopPropagation()}><button className="close" onClick={()=>setShowPaymentModal(false)}><X size={17}/></button><span className="eyebrow">SECURE CHECKOUT · T0METU STUDIO</span><h2>Unlock the original files.</h2>
-      {!canPay && <p>Please approve the preview first. Once approved, payment details will appear here.</p>}
+      {isDelivered && <p>Your payment has been verified. Check your email for the secure download link sent by the creator.</p>}
+      {!canPay && !isDelivered && <p>Please approve the preview first. Once approved, payment details will appear here.</p>}
       {canPay && data.payment?.status==='pending' && <div className="submitted"><CheckCircle2 size={19}/><div><strong>Payment submitted</strong><span>The creator is reviewing your transaction. The download link will be emailed after approval.</span></div></div>}
-      {canPay && data.payment?.status!=='pending' && <form onSubmit={submitPayment} className="payment-form">
+      {canPay && !isDelivered && data.payment?.status!=='pending' && <form onSubmit={submitPayment} className="payment-form">
         <p className="checkout-amount">Amount due: <strong>৳ {data.project.price}</strong></p>
         <label>Name<input required value={form.clientName} onChange={e=>setForm({...form,clientName:e.target.value})} placeholder="Your name"/></label>
         <label>Email<input required type="email" value={form.clientEmail} readOnly/></label>
