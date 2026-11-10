@@ -17,6 +17,9 @@ export async function POST(request: Request) {
 
     const project = await findRow('Projects', 'slug', slug);
     if (!project) return NextResponse.json({ error: 'Project not found.' }, { status: 404 });
+    if (clientEmail !== String(project.clientEmail || '').toLowerCase()) {
+      return NextResponse.json({ error: 'Use the email address attached to this project.' }, { status: 400 });
+    }
     if (project.status !== 'approved' && project.status !== 'payment_submitted') {
       return NextResponse.json({ error: 'Project must be approved before payment.' }, { status: 400 });
     }
