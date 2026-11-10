@@ -18,6 +18,7 @@ export async function GET(request: Request) {
         slug: project.slug,
         title: project.title,
         clientName: project.clientName,
+        clientEmail: project.clientEmail,
         price: project.price,
         status: project.status === 'draft' ? 'sent' : project.status,
         version: project.version || '1',
