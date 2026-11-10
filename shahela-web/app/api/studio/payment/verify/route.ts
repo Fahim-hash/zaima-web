@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { isStudioAdmin, unauthorized } from '@/lib/studio-auth';
-import { appendSheet, findRow, readSheet, sendStudioEmail, updateRow, studioBaseUrl } from '@/lib/studio';
+import { appendSheet, createDownloadToken, findRow, readSheet, sendStudioEmail, updateRow, studioBaseUrl } from '@/lib/studio';
 
 export async function POST(request: Request) {
   if (!isStudioAdmin(request)) return unauthorized();
@@ -30,8 +30,12 @@ export async function POST(request: Request) {
     const files = (await readSheet('Files')).filter((row) => row.projectSlug === payment.projectSlug && row.status !== 'deleted');
     await updateRow('Projects', 'slug', payment.projectSlug, { status: 'payment_verified', updatedAt: now });
 
-    const links = files.map((file) => `<li><a href="${escapeHtml(file.downloadUrl)}">${escapeHtml(file.name)}</a></li>`).join('');
-    const textLinks = files.map((file) => `- ${file.name}: ${file.downloadUrl}`).join('\n');
+    const downloadLinks = files.map((file) => ({
+      name: file.name,
+      url: `${studioBaseUrl()}/api/studio/download?token=${encodeURIComponent(createDownloadToken(payment.projectSlug, file.driveFileId, payment.clientEmail))}`,
+    }));
+    const links = downloadLinks.map((file) => `<li><a href="${escapeHtml(file.url)}">${escapeHtml(file.name)}</a></li>`).join('');
+    const textLinks = downloadLinks.map((file) => `- ${file.name}: ${file.url}`).join('\n');
     await sendStudioEmail(
       payment.clientEmail,
       `Final delivery — ${project.title}`,
