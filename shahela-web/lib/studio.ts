@@ -279,20 +279,39 @@ function parseRangeEnd(range: string | null) {
   return match ? Number(match[2]) + 1 : 0;
 }
 
-export async function makeDriveFileClientReadable(fileId: string) {
+export async function makeDriveFilePrivate(fileId: string) {
   const response = await googleFetch(
-    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/permissions?supportsAllDrives=true&fields=id`,
-    {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        type: 'anyone',
-        role: 'reader',
-        allowFileDiscovery: false,
-      }),
-    },
+    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/permissions?supportsAllDrives=true&fields=permissions(id,type,role)`,
   );
-  return response.json();
+  const data = await response.json();
+  for (const permission of (data.permissions || []) as Array<{ id: string; type: string }>) {
+    if (permission.type === 'anyone') {
+      await googleFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/permissions/${encodeURIComponent(permission.id)}?supportsAllDrives=true`, { method: 'DELETE' });
+    }
+  }
+}
+
+export async function getDriveMedia(fileId: string, range?: string | null) {
+  const token = await googleToken();
+  const headers = new Headers({ Authorization: `Bearer ${token}` });
+  if (range) headers.set('Range', range);
+  return fetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`, { headers, cache: 'no-store' });
+}
+
+export function createDownloadToken(slug: string, fileId: string, email: string) {
+  const payload = base64url(JSON.stringify({ slug, fileId, email, expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 }));
+  const signature = createHmac('sha256', uploadSecret()).update(payload).digest('base64url');
+  return `${payload}.${signature}`;
+}
+
+export function readDownloadToken(token: string) {
+  const [payload, signature] = token.split('.');
+  if (!payload || !signature) throw new Error('Invalid download link');
+  const expected = createHmac('sha256', uploadSecret()).update(payload).digest('base64url');
+  if (signature.length !== expected.length || !timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) throw new Error('Invalid download link');
+  const data = JSON.parse(decodeBase64url(payload)) as { slug: string; fileId: string; email: string; expiresAt: number };
+  if (!data.slug || !data.fileId || !data.email || !data.expiresAt || Date.now() > data.expiresAt) throw new Error('This download link has expired');
+  return data;
 }
 
 export async function getDriveFile(fileId: string) {
