@@ -31,7 +31,7 @@ function Preview({ file }: { file: FileItem }) {
     return <div className="media image" onContextMenu={(e)=>e.preventDefault()}><img src={url} alt={file.name} draggable={false}/></div>;
   }
   if (type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-    return <iframe className="pdf" src={url} title={file.name} onContextMenu={(e)=>e.preventDefault()}/>;
+    return <iframe className="pdf" src={`${url}#toolbar=0&navpanes=0`} title={file.name} onContextMenu={(e)=>e.preventDefault()}/>;
   }
   if (type.startsWith('audio/')) {
     return <div className="media audio" onContextMenu={(e)=>e.preventDefault()}><FileAudio2 size={42}/><strong>{file.name}</strong><audio controls controlsList="nodownload" src={url}/></div>;
