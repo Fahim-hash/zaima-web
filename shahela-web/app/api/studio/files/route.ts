@@ -4,8 +4,7 @@ import {
   appendSheet,
   findRow,
   getDriveFile,
-  makeDownloadUrl,
-  makeDriveFileClientReadable,
+  makeDriveFilePrivate,
   makeSlug,
 } from '@/lib/studio';
 
@@ -32,12 +31,11 @@ export async function POST(request: Request) {
     const response = await getDriveFile(fileId);
     const file = await response.json();
 
-    // The review link is intentionally shareable, so the completed file needs
-    // link-reader access for browser previews/downloads without Google login.
-    await makeDriveFileClientReadable(file.id);
+    // Keep the original private in Drive. Previews and paid downloads are streamed
+    // through server routes so the raw Drive URL is never exposed to the client.
+    await makeDriveFilePrivate(file.id);
 
     const now = new Date().toISOString();
-    const downloadUrl = await makeDownloadUrl(file.id);
 
     await appendSheet('Files', [
       makeSlug(),
@@ -46,7 +44,7 @@ export async function POST(request: Request) {
       file.name || '',
       file.mimeType || '',
       file.size || '',
-      downloadUrl,
+      '',
       'active',
       now,
     ]);
@@ -58,7 +56,7 @@ export async function POST(request: Request) {
         name: file.name,
         mimeType: file.mimeType,
         size: file.size,
-        downloadUrl,
+        previewUrl: `/api/studio/preview?slug=${encodeURIComponent(projectSlug)}&file=${encodeURIComponent(file.id)}`,
       },
     });
   } catch (error) {
