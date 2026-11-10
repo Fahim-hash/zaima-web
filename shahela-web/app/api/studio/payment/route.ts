@@ -4,15 +4,16 @@ import { appendSheet, findRow, readSheet, sendStudioEmail, updateRow, studioBase
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const slug = String(body.slug || '');
-    const clientName = String(body.clientName || '').trim();
+    const slug = String(body.slug || '').trim();
     const clientEmail = String(body.clientEmail || '').trim().toLowerCase();
     const method = String(body.method || '').trim();
     const trxId = String(body.trxId || '').trim();
-    const amount = String(body.amount || '').trim();
 
-    if (!slug || !clientName || !clientEmail || !method || !trxId || !amount) {
-      return NextResponse.json({ error: 'All payment fields are required.' }, { status: 400 });
+    if (!slug || !clientEmail || !method || !trxId) {
+      return NextResponse.json({ error: 'Choose a payment method and enter your transaction ID.' }, { status: 400 });
+    }
+    if (trxId.length < 4 || trxId.length > 100) {
+      return NextResponse.json({ error: 'Enter a valid transaction ID.' }, { status: 400 });
     }
 
     const project = await findRow('Projects', 'slug', slug);
@@ -20,12 +21,25 @@ export async function POST(request: Request) {
     if (clientEmail !== String(project.clientEmail || '').toLowerCase()) {
       return NextResponse.json({ error: 'Use the email address attached to this project.' }, { status: 400 });
     }
-    if (project.status !== 'approved' && project.status !== 'payment_submitted') {
-      return NextResponse.json({ error: 'Project must be approved before payment.' }, { status: 400 });
+    if (project.status !== 'approved') {
+      return NextResponse.json({ error: 'This project is not currently accepting a payment submission.' }, { status: 400 });
+    }
+
+    const [methods, payments] = await Promise.all([readSheet('PaymentMethods'), readSheet('Payments')]);
+    const activeMethod = methods.find((item) => item.name === method && item.enabled !== 'false');
+    if (!activeMethod) return NextResponse.json({ error: 'This payment method is not available.' }, { status: 400 });
+
+    const normalizedTrx = trxId.toLowerCase();
+    if (payments.some((item) => String(item.trxId || '').trim().toLowerCase() === normalizedTrx)) {
+      return NextResponse.json({ error: 'This transaction ID has already been submitted.' }, { status: 409 });
     }
 
     const now = new Date().toISOString();
     const paymentId = Date.now().toString();
+    const clientName = String(project.clientName || '').trim();
+    const amount = String(project.price || '').trim();
+    if (!amount) return NextResponse.json({ error: 'Project price is not configured.' }, { status: 400 });
+
     await appendSheet('Payments', [paymentId, slug, clientName, clientEmail, method, trxId, amount, 'pending', now, '']);
     await updateRow('Projects', 'slug', slug, { status: 'payment_submitted', updatedAt: now });
 
