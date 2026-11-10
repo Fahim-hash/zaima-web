@@ -23,7 +23,7 @@ export async function GET(request: Request) {
         version: project.version || '1',
         whatsapp: project.whatsapp || '',
       },
-      files: files.map(({ id, projectSlug, driveFileId, name, mimeType, size, downloadUrl }) => ({ id, projectSlug, driveFileId, name, mimeType, size, downloadUrl })),
+      files: files.map(({ id, projectSlug, driveFileId, name, mimeType, size }) => ({ id, projectSlug, name, mimeType, size, previewUrl: `/api/studio/preview?slug=${encodeURIComponent(slug)}&file=${encodeURIComponent(driveFileId)}` })),
       paymentMethods: methods.map(({ name, accountName, accountNumber, instructions, enabled }) => ({ name, accountName, accountNumber, instructions, enabled })),
       payment: payments.sort((a,b) => (b.createdAt || '').localeCompare(a.createdAt || ''))[0] || null,
       reviewUrl: `${studioBaseUrl()}/studio/review/${slug}`,
